@@ -100,46 +100,61 @@ Rel(sensorN, WarmHouseSystem, "Регистрация / Обновление д�
 ```plantuml
 @startuml
 
-title Тёплый дом Context Diagram
+title Тёплый дом Container Diagram
 
 top to bottom direction
 
-!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Container.puml
 
 Person(user, "Пользователь", "Меняет и просматривает температуру")
 Person(admin, "Администратор", "Управляет датчиками пользователя")
 
-System(WarmHouse, "Тёплый дом", "Система организующая управление отоплением в доме")
-
-Container_Boundary(WarmHouse, "Тёплый дом") {
-	Container(WebApp, "Веб приложение", "Предоставляет интерфейс для взаимодействия для клиента с системой")
-	Container(NginxProxy, "Nginx Proxy", "Предоставляет единый интерфейс для веб-приложения с микросервисами")
-	Container(EnvoyProxy, "Envoy Proxy", "Предоставляет единый интерфейс для кого угодно с микросервисами")
-	Container(SensorsAPI, "API Управление устройствами", "Обрабатывает, собирает и управляет информацией об устройствах")
-	Container(StateMonitoringAPI, "API Мониторинг состояний", "Обрабатывает, собирает и управляет информацией об устройствах")
-	Container(PgBouncer, "Менеджер коннектов к БД", "PgBouncer", "Эффективное использование физических подключений между приложениями и сервером базы данных")
-	Container(Database, "База данных", "PostgreSQL", "Хранит информацию об устройствах")
-	Container(S3, "Хранилище файлов", "S3", "Хранит статичные файлы")
+Container_Boundary(WarmHouseSystem, "Тёплый дом") {
+	Container(WebApp, "Веб приложение", "React", "SPA приложение для управления отоплением")
+	Container(NginxProxy, "Edge Gateway", "Nginx", "SSL termination, статика, API gateway")
+	Container(IngressEnvoy, "Ingress Envoy", "Envoy Proxy", "Точка входа в service mesh")
+	
+	Container_Boundary(ServiceMesh, "Service Mesh (Envoy Sidecar Pattern)") {
+		Container(SensorsAPI, "API Управление датчиками", "Go + Envoy sidecar", "Регистрация датчиков, управление конфигурацией, метаданные")
+		Container(StateMonitoringAPI, "API Мониторинг состояний", "Go + Envoy sidecar", "Прием показаний от датчиков, аналитика, алерты")
+	}
+	
+	Container(PgBouncer, "Connection Pool", "PgBouncer", "Пул соединений к БД")
+	ContainerDb(Database, "База данных", "PostgreSQL", "Датчики, показания, конфигурация")
+	Container(S3, "Хранилище файлов", "MinIO", "Логи, снапшоты, статистика")
+	Container(MessageBroker, "Message Broker", "Apache Kafka", "Асинхронная обработка событий от датчиков")
 }
 
-System_Ext(sensorN, "Датчик N", "API на устройстве регулировки")
+System_Ext(sensorDevice, "Датчик", "Физическое устройство с API")
 
-Rel(user, WebApp, "Использует систему")
-Rel(admin, WebApp, "Администрирует систему")
-Rel(WebApp, NginxProxy, "Использует как единый API")
-Rel(NginxProxy, EnvoyProxy, "Перенаправляет API запросы в нужный envoy service", "HTTP")
-Rel_R(NginxProxy, S3, "Статические данные (фото/видео)", "TCP")
+' Пользователи
+Rel(user, WebApp, "Использует", "HTTPS")
+Rel(admin, WebApp, "Администрирует", "HTTPS")
 
-Rel_R(EnvoyProxy, StateMonitoringAPI, "Делает API вызовы к", "HTTP")
-Rel(EnvoyProxy, SensorsAPI, "Делает API вызовы к", "HTTP")
-Rel(EnvoyProxy, PgBouncer, "Читает и пишет в", "TCP(SQL)")
-Rel(EnvoyProxy, sensorN, "Делает API вызовы к", "HTTP")
+' Nginx
+Rel(WebApp, NginxProxy, "API запросы", "HTTPS")
+Rel(NginxProxy, IngressEnvoy, "Проксирует к сервисам", "HTTP")
+Rel_L(NginxProxy, S3, "Отдает статику", "HTTP")
 
-Rel(SensorsAPI, EnvoyProxy, "Делает API вызовы к", "HTTP/TCP(SQL)")
-Rel(StateMonitoringAPI, EnvoyProxy, "Делает API вызовы к", "HTTP/TCP(SQL)")
-Rel(sensorN, EnvoyProxy, "Делает API вызовы к", "HTTP")
+' Envoy
+Rel(IngressEnvoy, SensorsAPI, "Запросы от админа/пользователя", "HTTP")
+Rel(IngressEnvoy, StateMonitoringAPI, "Запросы от датчиков и пользователей", "HTTP")
 
-Rel(PgBouncer, Database, "Читает и пишет в", "SQL/TCP")
+' S2S через sidecar Envoy
+Rel(SensorsAPI, StateMonitoringAPI, "Получает актуальные показания", "HTTP")
+Rel(StateMonitoringAPI, SensorsAPI, "Проверяет регистрацию датчика", "HTTP")
+
+' Брокер
+Rel(StateMonitoringAPI, MessageBroker, "Публикует показания", "AMQP")
+Rel(StateMonitoringAPI, MessageBroker, "Считывает показания", "AMQP")
+
+' Database
+Rel(SensorsAPI, PgBouncer, "CRUD датчиков, конфигурация")
+Rel(StateMonitoringAPI, PgBouncer, "Запись показаний, чтение для аналитики")
+Rel(PgBouncer, Database, "Пул соединений")
+
+' Обновление данных датчиков
+Rel(sensorDevice, IngressEnvoy, "POST /sensors/:id/value", "HTTPS")
 
 @enduml
 ```
