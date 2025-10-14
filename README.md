@@ -107,7 +107,7 @@ top to bottom direction
 !includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Container.puml
 
 Person(user, "Пользователь", "Меняет и просматривает температуру")
-Person(admin, "Администратор", "Управляет датчиками пользователя")
+Person(admin, "Администратор", "Управляет устройствами пользователя")
 
 Container_Boundary(WarmHouseSystem, "Тёплый дом") {
 	Container(WebApp, "Веб приложение", "React", "SPA приложение для управления отоплением")
@@ -115,17 +115,17 @@ Container_Boundary(WarmHouseSystem, "Тёплый дом") {
 	Container(IngressEnvoy, "Ingress Envoy", "Envoy Proxy", "Точка входа в service mesh")
 	
 	Container_Boundary(ServiceMesh, "Service Mesh (Envoy Sidecar Pattern)") {
-		Container(SensorsAPI, "API Управление датчиками", "Go + Envoy sidecar", "Регистрация датчиков, управление конфигурацией, метаданные")
-		Container(StateMonitoringAPI, "API Мониторинг состояний", "Go + Envoy sidecar", "Прием показаний от датчиков, аналитика, алерты")
+		Container(SensorsAPI, "API Управление устройствами", "Go + Envoy sidecar", "Регистрация устройств, управление конфигурацией")
+		Container(StateMonitoringAPI, "API Мониторинг состояний", "Go + Envoy sidecar", "Прием показаний от устройств, аналитика, алерты")
 	}
 	
 	Container(PgBouncer, "Connection Pool", "PgBouncer", "Пул соединений к БД")
-	ContainerDb(Database, "База данных", "PostgreSQL", "Датчики, показания, конфигурация")
+	ContainerDb(Database, "База данных", "PostgreSQL", "Устройства, показания, конфигурация")
 	Container(S3, "Хранилище файлов", "MinIO", "Логи, снапшоты, статистика")
-	Container(MessageBroker, "Message Broker", "Apache Kafka", "Асинхронная обработка событий от датчиков")
+	Container(MessageBroker, "Message Broker", "Apache Kafka", "Асинхронная обработка событий от устройств")
 }
 
-System_Ext(sensorDevice, "Датчик", "Физическое устройство с API")
+System_Ext(sensorDevice, "Устройство", "Физическое устройство с API")
 
 ' Пользователи
 Rel(user, WebApp, "Использует", "HTTPS")
@@ -138,22 +138,22 @@ Rel_L(NginxProxy, S3, "Отдает статику", "HTTP")
 
 ' Envoy
 Rel(IngressEnvoy, SensorsAPI, "Запросы от админа/пользователя", "HTTP")
-Rel(IngressEnvoy, StateMonitoringAPI, "Запросы от датчиков и пользователей", "HTTP")
+Rel(IngressEnvoy, StateMonitoringAPI, "Запросы от устройств и пользователей", "HTTP")
 
 ' S2S через sidecar Envoy
 Rel(SensorsAPI, StateMonitoringAPI, "Получает актуальные показания", "HTTP")
-Rel(StateMonitoringAPI, SensorsAPI, "Проверяет регистрацию датчика", "HTTP")
+Rel(StateMonitoringAPI, SensorsAPI, "Проверяет регистрацию устройства", "HTTP")
 
 ' Брокер
 Rel(StateMonitoringAPI, MessageBroker, "Публикует показания", "AMQP")
 Rel(StateMonitoringAPI, MessageBroker, "Считывает показания", "AMQP")
 
 ' Database
-Rel(SensorsAPI, PgBouncer, "CRUD датчиков, конфигурация")
+Rel(SensorsAPI, PgBouncer, "CRUD устройств, конфигурация")
 Rel(StateMonitoringAPI, PgBouncer, "Запись показаний, чтение для аналитики")
 Rel(PgBouncer, Database, "Пул соединений")
 
-' Обновление данных датчиков
+' Обновление данных устройств
 Rel(sensorDevice, IngressEnvoy, "POST /sensors/:id/value", "HTTPS")
 
 @enduml
@@ -161,7 +161,108 @@ Rel(sensorDevice, IngressEnvoy, "POST /sensors/:id/value", "HTTPS")
 
 **Диаграмма компонентов (Components)**
 
-Добавьте диаграмму для каждого из выделенных микросервисов.
+```plantuml
+@startuml
+
+title Тёплый дом API Управление устройствами Container Diagram
+
+top to bottom direction
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+
+Container_Boundary(WarmHouseSystem, "Тёплый дом") {
+	Container_Boundary(ServiceMesh, "Envoy Sidecar Pattern") {
+		Container(SensorsAPI, "API Управление устройствами", "Go + Envoy sidecar", "Регистрация устройств, управление конфигурацией") {
+			Component(AuthController, "AuthMiddleware", "Управляет авторизацией и аутентификацией клиентов")
+			Component(DeviceController, "DeviceController", "Delivery слой обработки")
+			Component(ServiceLayer, "Service Layer", "Бизнес логика")
+			Component(DatabaseRepositoryLayer, "Database Repository", "Доступ к данным об устройствах")
+			Component(MonitoringRepositoryLayer, "Monitoring Repository", "Доступ к данным устройств")
+		}
+		Container(EnvoySidecar, "Envoy Sidecar", "Envoy", "Проксирование запросов")
+	}
+	
+	Container(PgBouncer, "Connection Pool", "PgBouncer", "Пул соединений к БД")
+	Container(StateMonitoringAPI, "API Мониторинг состояний", "Go + Envoy sidecar", "Прием показаний от устройств, аналитика, алерты")
+}
+
+
+' Обращения внутри сервиса
+Rel(AuthController, DeviceController, "Передает запрос дальше")
+Rel(DeviceController, ServiceLayer, "Вызывает бизнес логику")
+Rel(ServiceLayer, DatabaseRepositoryLayer, "Читает/Пишет данные")
+Rel(ServiceLayer, MonitoringRepositoryLayer, "Получает информацию")
+Rel(AuthController, ServiceLayer, "Вызывает бизнес логику")
+
+' Database
+Rel(DatabaseRepositoryLayer, EnvoySidecar, "CRUD устройств, конфигурация")
+Rel(EnvoySidecar, PgBouncer, "CRUD устройств, конфигурация")
+
+' API
+Rel(MonitoringRepositoryLayer, EnvoySidecar, "Информация об устройствах")
+Rel(EnvoySidecar, StateMonitoringAPI, "Информация об устройствах")
+
+@enduml
+```
+
+
+```plantuml
+@startuml
+
+title Тёплый дом API Мониторинг состояний Container Diagram
+
+top to bottom direction
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+
+Container_Boundary(WarmHouseSystem, "Тёплый дом") {
+	Container_Boundary(ServiceMesh, "Envoy Sidecar Pattern") {
+		Container(StateMonitoringAPI, "API Мониторинг состояний", "Go", "Прием показаний от устройств, аналитика, алерты") {
+			Component(AuthController, "AuthMiddleware", "Управляет авторизацией и аутентификацией устройств и клиентов")
+			Component(MonitoringController, "MonitoringController", "Delivery слой обработки")
+			Component(CallbackController, "CallbackController", "Callback слой обработки")
+			Component(ServiceLayer, "Service Layer", "Бизнес логика")
+			Component(DatabaseRepositoryLayer, "Database Repository", "Доступ к данным об устройствах")
+			Component(QueueRepositoryLayer, "Queue Repository", "Публикация/Чтение данных устройств")
+			Component(MonitoringRepositoryLayer, "Monitoring Repository", "Доступ к данным устройств")
+		}
+
+		Container(EnvoySidecar, "Envoy Sidecar", "Envoy", "Проксирование запросов")
+	}
+	
+	Container(PgBouncer, "Connection Pool", "PgBouncer", "Пул соединений к БД")
+	Container(MessageBroker, "Message Broker", "Apache Kafka", "Асинхронная обработка событий от устройств")
+	Container(SensorsAPI, "API Управление устройствами", "Go + Envoy sidecar", "Регистрация устройств, управление конфигурацией")
+}
+
+
+' Обращения внутри сервиса
+Rel(MonitoringController, ServiceLayer, "Вызывает бизнес логику")
+Rel(CallbackController, ServiceLayer, "Вызывает бизнес логику")
+Rel(ServiceLayer, DatabaseRepositoryLayer, "Читает/Пишет данные")
+Rel(ServiceLayer, MonitoringRepositoryLayer, "Получает информацию")
+Rel(ServiceLayer, QueueRepositoryLayer, "Пишет / Инициирует чтение")
+Rel(AuthController, ServiceLayer, "Вызывает бизнес логику")
+
+' Database
+Rel(DatabaseRepositoryLayer, EnvoySidecar, "Запись показаний, чтение для аналитики")
+Rel(EnvoySidecar, PgBouncer, "Запись показаний, чтение для аналитики")
+
+' API
+Rel(MonitoringRepositoryLayer, EnvoySidecar, "Проверяет регистрацию устройства")
+Rel(EnvoySidecar, SensorsAPI, "Проверяет регистрацию устройства")
+
+
+' Брокер
+Rel(QueueRepositoryLayer, EnvoySidecar, "Публикует показания", "AMQP")
+Rel(QueueRepositoryLayer, EnvoySidecar, "Считывает показания", "AMQP")
+Rel(EnvoySidecar, MessageBroker, "Публикует показания", "AMQP")
+Rel(EnvoySidecar, MessageBroker, "Считывает показания", "AMQP")
+
+@enduml
+```
 
 **Диаграмма кода (Code)**
 
