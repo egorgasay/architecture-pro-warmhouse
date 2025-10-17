@@ -51,7 +51,8 @@
 Опишите здесь домены, которые вы выделили.
 
 1. Управление устройствами
-2. Мониторинг состояний
+2. Мониторинг состояний устройств
+3. Управление пользователями
 
 ### **4. Проблемы монолитного решения**
 
@@ -117,6 +118,7 @@ Container_Boundary(WarmHouseSystem, "Тёплый дом") {
 	Container_Boundary(ServiceMesh, "Service Mesh (Envoy Sidecar Pattern)") {
 		Container(SensorsAPI, "API Управление устройствами", "Go + Envoy sidecar", "Регистрация устройств, управление конфигурацией")
 		Container(StateMonitoringAPI, "API Мониторинг состояний", "Go + Envoy sidecar", "Прием показаний от устройств, аналитика, алерты")
+		Container(UsersAPI, "API Users", "Go + Envoy sidecar", "Работа с пользователями")
 	}
 	
 	Container(PgBouncer, "Connection Pool", "PgBouncer", "Пул соединений к БД")
@@ -142,7 +144,9 @@ Rel(IngressEnvoy, StateMonitoringAPI, "Запросы от устройств и
 
 ' S2S через sidecar Envoy
 Rel(SensorsAPI, StateMonitoringAPI, "Получает актуальные показания", "HTTP")
-Rel(StateMonitoringAPI, SensorsAPI, "Проверяет регистрацию устройства", "HTTP")
+Rel(StateMonitoringAPI, SensorsAPI, "Проверяет существование устройства", "HTTP")
+Rel(SensorsAPI, UsersAPI, "Проверка авторизации пользователя и действия", "HTTP")
+Rel(StateMonitoringAPI, UsersAPI, "Проверяет регистрацию устройства и разрешенность запроса для пользователя", "HTTP")
 
 ' Брокер
 Rel(StateMonitoringAPI, MessageBroker, "Публикует показания", "AMQP")
@@ -174,34 +178,39 @@ top to bottom direction
 Container_Boundary(WarmHouseSystem, "Тёплый дом") {
 	Container_Boundary(ServiceMesh, "Envoy Sidecar Pattern") {
 		Container(SensorsAPI, "API Управление устройствами", "Go + Envoy sidecar", "Регистрация устройств, управление конфигурацией") {
-			Component(AuthController, "AuthMiddleware", "Управляет авторизацией и аутентификацией клиентов")
+			Component(AuthMiddleware, "AuthMiddleware", "Управляет авторизацией и аутентификацией клиентов")
 			Component(DeviceController, "DeviceController", "Delivery слой обработки")
-			Component(ServiceLayer, "Service Layer", "Бизнес логика")
-			Component(DatabaseRepositoryLayer, "Database Repository", "Доступ к данным об устройствах")
-			Component(MonitoringRepositoryLayer, "Monitoring Repository", "Доступ к данным устройств")
+			Component(Service, "Service", "Бизнес логика")
+			Component(DatabaseRepository, "Database Repository", "Доступ к данным об устройствах")
+			Component(MonitoringRepository, "Monitoring Repository", "Доступ к данным устройств")
+			Component(AuthRepository, "Auth Repository", "Доступ к данным пользователей")
 		}
 		Container(EnvoySidecar, "Envoy Sidecar", "Envoy", "Проксирование запросов")
 	}
 	
 	Container(PgBouncer, "Connection Pool", "PgBouncer", "Пул соединений к БД")
 	Container(StateMonitoringAPI, "API Мониторинг состояний", "Go + Envoy sidecar", "Прием показаний от устройств, аналитика, алерты")
+	Container(UsersAPI, "API Users", "Go + Envoy sidecar", "Работа с пользователями")
 }
 
 
 ' Обращения внутри сервиса
-Rel(AuthController, DeviceController, "Передает запрос дальше")
-Rel(DeviceController, ServiceLayer, "Вызывает бизнес логику")
-Rel(ServiceLayer, DatabaseRepositoryLayer, "Читает/Пишет данные")
-Rel(ServiceLayer, MonitoringRepositoryLayer, "Получает информацию")
-Rel(AuthController, ServiceLayer, "Вызывает бизнес логику")
+Rel_R(AuthMiddleware, DeviceController, "Передает запрос дальше")
+Rel(DeviceController, Service, "Вызывает бизнес логику")
+Rel(Service, DatabaseRepository, "Читает/Пишет данные")
+Rel(Service, MonitoringRepository, "Получает информацию")
+Rel(AuthMiddleware, Service, "Вызывает бизнес логику")
+Rel(Service, AuthRepository, "Аутентификация пользователя и авторизация запроса")
 
 ' Database
-Rel(DatabaseRepositoryLayer, EnvoySidecar, "CRUD устройств, конфигурация")
+Rel(DatabaseRepository, EnvoySidecar, "CRUD устройств, конфигурация")
 Rel(EnvoySidecar, PgBouncer, "CRUD устройств, конфигурация")
 
 ' API
-Rel(MonitoringRepositoryLayer, EnvoySidecar, "Информация об устройствах")
-Rel(EnvoySidecar, StateMonitoringAPI, "Информация об устройствах")
+Rel(MonitoringRepository, EnvoySidecar, "Информация об устройствах", "HTTP")
+Rel(EnvoySidecar, StateMonitoringAPI, "Информация об устройствах", "HTTP")
+Rel(AuthRepository, EnvoySidecar, "Аутентификация пользователя и авторизация запроса", "HTTP")
+Rel(EnvoySidecar, UsersAPI, "Аутентификация пользователя и авторизация запроса", "HTTP")
 
 @enduml
 ```
@@ -220,13 +229,14 @@ top to bottom direction
 Container_Boundary(WarmHouseSystem, "Тёплый дом") {
 	Container_Boundary(ServiceMesh, "Envoy Sidecar Pattern") {
 		Container(StateMonitoringAPI, "API Мониторинг состояний", "Go", "Прием показаний от устройств, аналитика, алерты") {
-			Component(AuthController, "AuthMiddleware", "Управляет авторизацией и аутентификацией устройств и клиентов")
+			Component(AuthMiddleware, "AuthMiddleware", "Управляет авторизацией и аутентификацией устройств и клиентов")
 			Component(MonitoringController, "MonitoringController", "Delivery слой обработки")
 			Component(CallbackController, "CallbackController", "Callback слой обработки")
-			Component(ServiceLayer, "Service Layer", "Бизнес логика")
-			Component(DatabaseRepositoryLayer, "Database Repository", "Доступ к данным об устройствах")
-			Component(QueueRepositoryLayer, "Queue Repository", "Публикация/Чтение данных устройств")
-			Component(MonitoringRepositoryLayer, "Monitoring Repository", "Доступ к данным устройств")
+			Component(Service, "Service", "Бизнес логика")
+			Component(DatabaseRepository, "Database Repository", "Доступ к данным об устройствах")
+			Component(QueueRepository, "Queue Repository", "Публикация/Чтение данных устройств")
+			Component(MonitoringRepository, "Monitoring Repository", "Доступ к данным устройств")
+			Component(AuthRepository, "Auth Repository", "Доступ к данным пользователей")
 		}
 
 		Container(EnvoySidecar, "Envoy Sidecar", "Envoy", "Проксирование запросов")
@@ -235,29 +245,35 @@ Container_Boundary(WarmHouseSystem, "Тёплый дом") {
 	Container(PgBouncer, "Connection Pool", "PgBouncer", "Пул соединений к БД")
 	Container(MessageBroker, "Message Broker", "Apache Kafka", "Асинхронная обработка событий от устройств")
 	Container(SensorsAPI, "API Управление устройствами", "Go + Envoy sidecar", "Регистрация устройств, управление конфигурацией")
+	Container(UsersAPI, "API Users", "Go + Envoy sidecar", "Работа с пользователями")
 }
 
 
 ' Обращения внутри сервиса
-Rel(MonitoringController, ServiceLayer, "Вызывает бизнес логику")
-Rel(CallbackController, ServiceLayer, "Вызывает бизнес логику")
-Rel(ServiceLayer, DatabaseRepositoryLayer, "Читает/Пишет данные")
-Rel(ServiceLayer, MonitoringRepositoryLayer, "Получает информацию")
-Rel(ServiceLayer, QueueRepositoryLayer, "Пишет / Инициирует чтение")
-Rel(AuthController, ServiceLayer, "Вызывает бизнес логику")
+Rel(MonitoringController, Service, "Вызывает бизнес логику")
+Rel(CallbackController, Service, "Вызывает бизнес логику")
+Rel(AuthMiddleware, MonitoringController, "Передает запрос дальше")
+Rel(AuthMiddleware, CallbackController, "Передает запрос дальше")
+Rel_R(AuthMiddleware, Service, "Вызывает бизнес логику")
+Rel(Service, DatabaseRepository, "Читает/Пишет данные")
+Rel(Service, MonitoringRepository, "Получает информацию")
+Rel(Service, QueueRepository, "Пишет / Инициирует чтение")
+Rel(Service, AuthRepository, "Аутентификация пользователя и авторизация запроса")
 
 ' Database
-Rel(DatabaseRepositoryLayer, EnvoySidecar, "Запись показаний, чтение для аналитики")
+Rel(DatabaseRepository, EnvoySidecar, "Запись показаний, чтение для аналитики")
 Rel(EnvoySidecar, PgBouncer, "Запись показаний, чтение для аналитики")
 
 ' API
-Rel(MonitoringRepositoryLayer, EnvoySidecar, "Проверяет регистрацию устройства")
-Rel(EnvoySidecar, SensorsAPI, "Проверяет регистрацию устройства")
+Rel(MonitoringRepository, EnvoySidecar, "Проверяет регистрацию устройства", "HTTP")
+Rel(EnvoySidecar, SensorsAPI, "Проверяет регистрацию устройства", "HTTP")
+Rel(AuthRepository, EnvoySidecar, "Аутентификация пользователя и авторизация запроса", "HTTP")
+Rel(EnvoySidecar, UsersAPI, "Аутентификация пользователя и авторизация запроса", "HTTP")
 
 
 ' Брокер
-Rel(QueueRepositoryLayer, EnvoySidecar, "Публикует показания", "AMQP")
-Rel(QueueRepositoryLayer, EnvoySidecar, "Считывает показания", "AMQP")
+Rel(QueueRepository, EnvoySidecar, "Публикует показания", "AMQP")
+Rel(QueueRepository, EnvoySidecar, "Считывает показания", "AMQP")
 Rel(EnvoySidecar, MessageBroker, "Публикует показания", "AMQP")
 Rel(EnvoySidecar, MessageBroker, "Считывает показания", "AMQP")
 
@@ -266,7 +282,48 @@ Rel(EnvoySidecar, MessageBroker, "Считывает показания", "AMQP"
 
 **Диаграмма кода (Code)**
 
-Добавьте одну диаграмму или несколько.
+```plantuml
+@startuml
+title FitLife Membership Management Code Diagram
+
+top to bottom direction
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+class MonitoringData {
+  +Float value
+  +Int status
+  +Date createdAt
+  +void gather()
+}
+
+class Sensor {
+  +Int id
+  +String name
+  +String type
+  +String location
+  +String unit
+  +Date lastUpdated
+  +Date createdAt
+  +void register()
+  +void update()
+  +void do()
+}
+
+
+class User {
+  +String name
+  +Date password
+  +void register()
+  +void login()
+  +void delete()
+}
+
+User "1" -- "0..*" Sensor : has
+Sensor "1" -- "0..*" MonitoringData : includes
+
+@enduml
+```
 
 # Задание 3. Разработка ER-диаграммы
 
