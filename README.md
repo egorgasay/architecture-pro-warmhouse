@@ -292,7 +292,6 @@ top to bottom direction
 
 class MonitoringData {
   +Float value
-  +Int status
   +Date createdAt
   +void gather()
 }
@@ -314,6 +313,7 @@ class Sensor {
 class User {
   +String name
   +Date password
+  +String role
   +void register()
   +void login()
   +void delete()
@@ -328,6 +328,42 @@ Sensor "1" -- "0..*" MonitoringData : includes
 # Задание 3. Разработка ER-диаграммы
 
 Добавьте сюда ER-диаграмму. Она должна отражать ключевые сущности системы, их атрибуты и тип связей между ними.
+
+```plantuml
+@startuml
+left to right direction
+skinparam linetype ortho
+
+entity "Пользователь" as usr {
+  Имя
+  Пароль
+  Роль привилегий
+}
+
+entity "Группа" as grp {
+  Идентификатор
+  Имя
+}
+
+entity "Датчик" as snr {
+  Идентификатор
+  Расположение
+  Тип
+  Имя
+  Группа
+  Статус
+}
+
+entity "Данные" as dat {
+  Значение
+  Дата создания
+}
+
+usr ||..o{ grp
+grp ||..o{ snr
+snr ||..o{ dat
+@enduml
+```
 
 # Задание 4. Создание и документирование API
 
