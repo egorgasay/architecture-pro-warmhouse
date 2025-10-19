@@ -140,13 +140,14 @@ Rel_L(NginxProxy, S3, "Отдает статику", "HTTP")
 
 ' Envoy
 Rel(IngressEnvoy, SensorsAPI, "Запросы от админа/пользователя", "HTTP")
+Rel(IngressEnvoy, UsersAPI, "Запросы от админа/пользователя", "HTTP")
 Rel(IngressEnvoy, StateMonitoringAPI, "Запросы от устройств и пользователей", "HTTP")
 
 ' S2S через sidecar Envoy
 Rel(SensorsAPI, StateMonitoringAPI, "Получает актуальные показания", "HTTP")
 Rel(StateMonitoringAPI, SensorsAPI, "Проверяет существование устройства", "HTTP")
 Rel(SensorsAPI, UsersAPI, "Проверка авторизации пользователя и действия", "HTTP")
-Rel(StateMonitoringAPI, UsersAPI, "Проверяет регистрацию устройства и разрешенность запроса для пользователя", "HTTP")
+Rel(StateMonitoringAPI, UsersAPI, "Проверяет разрешенность запроса для пользователя", "HTTP")
 
 ' Брокер
 Rel(StateMonitoringAPI, MessageBroker, "Публикует показания", "AMQP")
@@ -294,6 +295,7 @@ class MonitoringData {
   +Float value
   +Int status
   +Date createdAt
+  +void gather()
 }
 
 class Sensor {
@@ -304,24 +306,16 @@ class Sensor {
   +String unit
   +Date lastUpdated
   +Date createdAt
-  +Int last_status
+  +Int lastStatus
   +void register()
   +void update()
-  +void updateValue()
-}
-
-
-class SensorGroup {
-  +Int id
-  +String name
-  +void addSensor()
-  +void removeSensor()
-  +void getSensors()
+  +void do()
 }
 
 
 class User {
   +String name
+  +String email
   +Date password
   +String role
   +void register()
@@ -330,7 +324,6 @@ class User {
 }
 
 User "1" -- "0..*" Sensor : has
-SensorGroup "1" -- "0..*" Sensor : has
 Sensor "1" -- "0..*" MonitoringData : includes
 
 @enduml
@@ -347,6 +340,7 @@ skinparam linetype ortho
 
 entity "Пользователь" as usr {
   Имя
+  Почта
   Пароль
   Роль привилегий
 }
@@ -383,9 +377,20 @@ snr ||..o{ dat
 
 Укажите, какой тип API вы будете использовать для взаимодействия микросервисов. Объясните своё решение.
 
+```
+Я буду использовать в основном REST API в частях где идет общение с клиентом (а именно SensorsAPI).
+AsyncAPI буду использовать при взаимодейстии `датчик -> система (callback)`
+```
+
 ### 2. Документация API
 
 Здесь приложите ссылки на документацию API для микросервисов, которые вы спроектировали в первой части проектной работы. Для документирования используйте Swagger/OpenAPI или AsyncAPI.
+
+[SensorsAPI](docs/swagger/SensorsAPI.yaml)
+[StateMonitoringAPI](docs/swagger/StateMonitoringAPI.yaml)
+[UsersAPI](docs/swagger/UsersAPI.yaml)
+[SensorAPI](docs/swagger/SensorAPI.yaml)
+[CommonComponents](docs/swagger/CommonComponents.yaml)
 
 # Задание 5. Работа с docker и docker-compose
 
