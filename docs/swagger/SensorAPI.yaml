@@ -19,7 +19,6 @@ paths:
       parameters:
         - name: location
           in: query
-          required: true
           schema:
             type: string
             properties:
@@ -27,6 +26,14 @@ paths:
                 type: string
                 example: "Гостиная"
             description: "Локация"
+        - name: sensorId
+          in: query
+          schema:
+            type: string
+            properties:
+              sensorId:
+                $ref: "CommonComponents.yaml#/components/schemas/sensor_id"
+            description: "Идентификатор датчика"
       security: 
         - device_key: []
       responses:
