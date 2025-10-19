@@ -14,7 +14,7 @@ def create_app():
     controller = TemperatureController(service)
     
     # Регистрация маршрутов
-    app.add_url_rule('/test', 'test_temperature', controller.get_test_temperature, methods=['GET'])
+    app.add_url_rule('/temperature', 'get_temperature', controller.get_temperature, methods=['GET'])
     app.add_url_rule('/health', 'health_check', controller.health_check, methods=['GET'])
     
     return app
