@@ -2,6 +2,7 @@ from flask import Flask
 from controllers.temperature_controller import TemperatureController
 from services.temperature_service import TemperatureService
 from repositories.temperature_repository import RandomTemperatureRepository
+import os
 
 
 def create_app():
@@ -9,7 +10,10 @@ def create_app():
     app = Flask(__name__)
     
     # Создание экземпляров слоев
-    repository = RandomTemperatureRepository()
+    repository = RandomTemperatureRepository(
+        min_temp=float(os.getenv("MIN_TEMP", -20)), 
+        max_temp=float(os.getenv("MAX_TEMP", 40)),
+    )
     service = TemperatureService(repository)
     controller = TemperatureController(service)
     
