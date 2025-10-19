@@ -293,7 +293,7 @@ top to bottom direction
 
 class MonitoringData {
   +Float value
-  +Int status
+  +String status
   +Date createdAt
   +void gather()
 }
@@ -306,7 +306,7 @@ class Sensor {
   +String unit
   +Date lastUpdated
   +Date createdAt
-  +Int lastStatus
+  +String lastStatus
   +void register()
   +void update()
   +void do()

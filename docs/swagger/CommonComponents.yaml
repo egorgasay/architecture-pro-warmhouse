@@ -68,11 +68,6 @@ components:
       example: "active"
       description: "Статус датчика"
       
-    sensor_status_code:
-      type: integer
-      example: 2
-      description: "Код статуса датчика (0-неактивен, 1-активен, 2-работает)"
-      
     timestamp:
       type: string
       format: date-time
@@ -101,7 +96,7 @@ components:
         value:
           $ref: "#/components/schemas/sensor_value"
         status:
-          $ref: "#/components/schemas/sensor_status_code"
+          $ref: "#/components/schemas/sensor_status"
         ts:
           $ref: "#/components/schemas/timestamp"
       description: "Запрос на обновление данных датчика"
