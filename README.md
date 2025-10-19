@@ -292,8 +292,8 @@ top to bottom direction
 
 class MonitoringData {
   +Float value
+  +Int status
   +Date createdAt
-  +void gather()
 }
 
 class Sensor {
@@ -304,9 +304,19 @@ class Sensor {
   +String unit
   +Date lastUpdated
   +Date createdAt
+  +Int last_status
   +void register()
   +void update()
-  +void do()
+  +void updateValue()
+}
+
+
+class SensorGroup {
+  +Int id
+  +String name
+  +void addSensor()
+  +void removeSensor()
+  +void getSensors()
 }
 
 
@@ -320,6 +330,7 @@ class User {
 }
 
 User "1" -- "0..*" Sensor : has
+SensorGroup "1" -- "0..*" Sensor : has
 Sensor "1" -- "0..*" MonitoringData : includes
 
 @enduml
@@ -351,12 +362,13 @@ entity "Датчик" as snr {
   Тип
   Имя
   Группа
-  Статус
+  Последний статус
 }
 
 entity "Данные" as dat {
   Значение
   Дата создания
+  Статус
 }
 
 usr ||..o{ grp
