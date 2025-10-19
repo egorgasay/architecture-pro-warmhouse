@@ -1,0 +1,185 @@
+openapi: 3.0.0
+servers:
+  # Added by API Auto Mocking Plugin
+  - description: SwaggerHub API Auto Mocking
+    url: 'https://virtserver.swaggerhub.com/nst-023/users/1.0.0'
+info:
+  version: 1.0.0
+  title: Users API
+  description: API для работы с пользователями
+security:
+  - o2:
+      - read
+      - write
+
+paths:
+  /auth/register:
+    post:
+      tags:
+        - Core
+      summary: Регистрация нового пользователя
+      description: Операция регистрации пользователя без необходимости аутентификации.
+      operationId: Register
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              description: Данные для регистрации
+              type: object
+              properties:
+                username:
+                  $ref: "CommonComponents.yaml#/components/schemas/username"
+                email:
+                  $ref: "CommonComponents.yaml#/components/schemas/email"
+                password:
+                  $ref: "CommonComponents.yaml#/components/schemas/password"
+      security: []
+      responses:
+        '200':
+          $ref: "CommonComponents.yaml#/components/responses/ok_response"
+        '400':
+          $ref: "CommonComponents.yaml#/components/responses/bad_request_response"
+        '500':
+          $ref: "CommonComponents.yaml#/components/responses/bad_request_response"
+          
+  /auth/login:
+    post:
+      tags:
+        - Core
+      summary: Аутентификация пользователя
+      description: Выполняет аутентификацию пользователя и выдает новый токен доступа.
+      operationId: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              description: Данные для входа
+              type: object
+              properties:
+                username:
+                  $ref: "CommonComponents.yaml#/components/schemas/username"
+                password:
+                  $ref: "CommonComponents.yaml#/components/schemas/password"
+      security: []
+      responses:
+        '200':
+          description: Успешная аутентификация, выдан новый токен
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    $ref: "CommonComponents.yaml#/components/schemas/access_token"
+                  access_token_expires_in:
+                    $ref: "CommonComponents.yaml#/components/schemas/expires_in"
+                  refresh_token:
+                    $ref: "CommonComponents.yaml#/components/schemas/refresh_token"
+                  refresh_token_expires_in:
+                    $ref: "CommonComponents.yaml#/components/schemas/expires_in"
+        '400':
+          $ref: "CommonComponents.yaml#/components/responses/bad_request_response"
+        '500':
+          $ref: "CommonComponents.yaml#/components/responses/bad_request_response"
+          
+  /auth/refresh:
+    post:
+      tags:
+        - Core
+      summary: Обновление токена пользователя
+      description: Выполняет аутентификацию пользователя и выдает новый токен доступа.
+      operationId: Refresh
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              description: Данные для обновления токена
+              type: object
+              required:
+                - refresh_token
+              properties:
+                refresh_token:
+                  $ref: "CommonComponents.yaml#/components/schemas/refresh_token"
+      security: []
+      responses:
+        '200':
+          description: Выдан новый токен
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    $ref: "CommonComponents.yaml#/components/schemas/access_token"
+        '400':
+          $ref: "CommonComponents.yaml#/components/responses/bad_request_response"
+        '500':
+          $ref: "CommonComponents.yaml#/components/responses/bad_request_response"
+  
+  /auth/logout:
+    post:
+      tags:
+        - Core
+      summary: Выход из аккаунта
+      description: Выполняет выход из аккаунта пользователя деактивацией токена.
+      operationId: Logout
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              description: Данные для обновления токена
+              type: object
+              required:
+                - access_token
+              properties:
+                access_token:
+                  $ref: "CommonComponents.yaml#/components/schemas/access_token"
+      security: 
+        - o2: []
+      responses:
+        '200':
+          description: Успешная аутентификация, выдан новый токен
+        '400':
+          $ref: "CommonComponents.yaml#/components/responses/bad_request_response"
+        '500':
+          $ref: "CommonComponents.yaml#/components/responses/bad_request_response"
+          
+  /admin/users:
+    get:
+      tags:
+        - Admin
+      summary: Получение списка всех пользователей
+      description: Доступно только администраторам для получения информации о всех пользователях.
+      operationId: GetAllUsers
+      parameters:
+        - $ref: "CommonComponents.yaml#/components/parameters/limit_param"
+        - $ref: "CommonComponents.yaml#/components/parameters/offset_param"
+      security: 
+        - o2: []
+      responses:
+        '200':
+          description: Список всех пользователей успешно получен
+        '400':
+          $ref: "CommonComponents.yaml#/components/responses/bad_request_response"
+        '500':
+          $ref: "CommonComponents.yaml#/components/responses/bad_request_response"
+          
+  /admin/user/deactivate:
+    post:
+      tags:
+        - Admin
+      summary: Отключение пользователя от общей системы 
+      description: Доступно только администраторам для удаления пользователя и отключения от целевой системы его устройств.
+      security: 
+        - o2: []
+      responses:
+        '200':
+          description: Удаление прошло успешно
+        '400':
+          $ref: "CommonComponents.yaml#/components/responses/bad_request_response"
+        '500':
+          $ref: "CommonComponents.yaml#/components/responses/bad_request_response"

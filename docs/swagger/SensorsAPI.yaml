@@ -1,0 +1,63 @@
+openapi: 3.0.0
+servers:
+  - description: Sensors API Server
+    url: 'https://api.example.com/sensors/v1'
+info:
+  version: 1.0.0
+  title: Sensors API
+  description: API для работы с датчиками системы
+security:
+  - o2:
+      - read
+      - write
+
+paths:
+  /admin/test:
+    get:
+      tags:
+        - Admin
+      summary: Тестовый метод для демонстрации
+      description: Тестовый метод, повторяющий функциональность /admin/users из UsersAPI
+      operationId: TestMethod
+      parameters:
+        - $ref: "CommonComponents.yaml#/components/parameters/limit_param"
+        - $ref: "CommonComponents.yaml#/components/parameters/offset_param"
+      security: 
+        - o2: []
+      responses:
+        '200':
+          description: Тестовый запрос выполнен успешно
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Test method executed successfully"
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          example: "sensor-id-1"
+                        type:
+                          type: string
+                          example: "temperature"
+                        value:
+                          type: number
+                          example: 22.5
+                        unit:
+                          type: string
+                          example: "°C"
+        '400':
+          $ref: "CommonComponents.yaml#/components/responses/bad_request_response"
+        '401':
+          $ref: "CommonComponents.yaml#/components/responses/unauthorized_response"
+        '403':
+          $ref: "CommonComponents.yaml#/components/responses/forbidden_response"
+        '500':
+          $ref: "CommonComponents.yaml#/components/responses/internal_error_response"
+
