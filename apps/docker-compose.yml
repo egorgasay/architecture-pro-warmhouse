@@ -1,9 +1,9 @@
 version: '3.8'
 
 services:
-  postgres:
+  database:
     image: postgres:16-alpine
-    container_name: smarthome-postgres
+    container_name: database
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -15,18 +15,18 @@ services:
       retries: 5
       start_period: 10s
     volumes:
-    - ./smart_home/init.sql:/docker-entrypoint-initdb.d/init.sql
+    - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     networks:
       - smarthome-network
 
-  temperature-api:
+  temperature_api:
     build:
-      context: ./temperature-api
+      context: ./temperature_api
       dockerfile: Dockerfile
-    container_name: temperature-api
+    container_name: temperature_api
     environment:
       - MIN_TEMP=-20
       - MAX_TEMP=40
@@ -42,13 +42,13 @@ services:
       dockerfile: Dockerfile
     container_name: smarthome-app
     depends_on:
-      postgres:
+      database:
         condition: service_healthy
-      temperature-api:
+      temperature_api:
         condition: service_started
     environment:
       - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
-      - TEMPERATURE_API_URL=http://temperature-api:5000
+      - TEMPERATURE_API_URL=http://temperature_api:5000
     ports:
       - "8080:8080"
     restart: unless-stopped
@@ -60,8 +60,4 @@ volumes:
 
 networks:
   smarthome-network:
-    driver: bridge
-  temperature-api-network:
-    driver: bridge
-  postgres-network:
     driver: bridge
