@@ -9,11 +9,4 @@ diesel::table! {
     }
 }
 
-diesel::table! {
-    service_contexts (id) {
-        id -> Int4,
-        maintenance -> Bool,
-    }
-}
-
-diesel::allow_tables_to_appear_in_same_query!(sensor_data, service_contexts,);
+// diesel::allow_tables_to_appear_in_same_query!(sensor_data);

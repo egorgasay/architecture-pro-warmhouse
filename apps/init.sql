@@ -1,19 +1,9 @@
--- Create the database if it doesn't exist, ignore error if already exists
-DO $$
-BEGIN
-    PERFORM 1 FROM pg_database WHERE datname = 'smarthome';
-    IF NOT FOUND THEN
-        CREATE DATABASE smarthome;
-    END IF;
-    PERFORM 1 FROM pg_database WHERE datname = 'statemonitoring';
-    IF NOT FOUND THEN
-        CREATE DATABASE statemonitoring;
-    END IF;
-EXCEPTION WHEN others THEN
-    -- Ignore error if database exists or other error occurs
-    NULL;
-END
-$$;
+-- Create the databases if they don't exist
+SELECT 'CREATE DATABASE smarthome'
+WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'smarthome')\gexec
+
+SELECT 'CREATE DATABASE statemonitoring'
+WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'statemonitoring')\gexec
 
 -- Connect to the smarthome database
 \c smarthome;
@@ -35,7 +25,6 @@ CREATE TABLE IF NOT EXISTS sensors (
 CREATE INDEX IF NOT EXISTS idx_sensors_type ON sensors(type);
 CREATE INDEX IF NOT EXISTS idx_sensors_location ON sensors(location);
 CREATE INDEX IF NOT EXISTS idx_sensors_status ON sensors(status);
-
 -- Connect to the statemonitoring database
 \c statemonitoring;
 
@@ -59,11 +48,6 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Create service_contexts table
-CREATE TABLE IF NOT EXISTS service_contexts (
-    id INT PRIMARY KEY,
-    maintenance BOOLEAN NOT NULL DEFAULT FALSE
-);
 
 -- Create sensor_data table
 CREATE TABLE IF NOT EXISTS sensor_data (
@@ -71,12 +55,4 @@ CREATE TABLE IF NOT EXISTS sensor_data (
     value VARCHAR NOT NULL,
     status VARCHAR NOT NULL,
     ts TIMESTAMP NOT NULL DEFAULT NOW()
-);
-
--- Create todos table (for compatibility with existing migrations)
-CREATE TABLE IF NOT EXISTS todos (
-    id SERIAL PRIMARY KEY,
-    title VARCHAR NOT NULL,
-    description TEXT NOT NULL,
-    completed BOOLEAN NOT NULL DEFAULT FALSE
 );
