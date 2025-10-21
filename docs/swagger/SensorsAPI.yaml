@@ -12,7 +12,10 @@ security:
       - write
 
 paths:
-  /admin/test:
+  /api/v1/senor/create:
+  /api/v1/senor/delete:
+  ....
+  /api/v1/senors:
     get:
       tags:
         - Admin
@@ -26,32 +29,6 @@ paths:
         - o2: []
       responses:
         '200':
-          description: Тестовый запрос выполнен успешно
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: "Test method executed successfully"
-                  data:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        id:
-                          type: string
-                          example: "sensor-id-1"
-                        type:
-                          type: string
-                          example: "temperature"
-                        value:
-                          type: number
-                          example: 22.5
-                        unit:
-                          type: string
-                          example: "°C"
         '400':
           $ref: "CommonComponents.yaml#/components/responses/bad_request_response"
         '401':

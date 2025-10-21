@@ -46,7 +46,7 @@ paths:
         '500':
           $ref: "CommonComponents.yaml#/components/responses/internal_error_response"
   
-  /s2s/v1/sensor/update:
+  /api/v1/sensor/update:
     post:
       summary: Обновляет значение данных датчика
       description: Метод обновляющий показания по инициативе датчика

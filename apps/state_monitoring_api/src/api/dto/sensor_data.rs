@@ -9,16 +9,24 @@ use serde::{Serialize, Deserialize};
 
 #[derive(Debug, Serialize)]
 pub struct SensorDataDTO {
-    id: i32,
-    value: String,
-    status: String,
-    ts: String,
+    pub id: i32,
+    pub value: String,
+    pub status: String,
+    pub ts: String,
 }
 
-impl Into<SensorDataDTO> for SensorData {
-    fn into(self) -> SensorDataDTO {
-        SensorDataDTO {
-            id: self.id,
+
+#[derive(Debug, Deserialize)]
+pub struct AddSensorDataDTO {
+    pub value: String,
+    pub status: String,
+    pub ts: String,
+}
+
+impl Into<SensorData> for AddSensorDataDTO {
+    fn into(self) -> SensorData {
+        SensorData {
+            id: 0,
             value: self.value,
             status: self.status,
             ts: self.ts,

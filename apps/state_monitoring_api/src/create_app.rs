@@ -4,7 +4,7 @@ use actix_web::{Error};
 use actix_web::body::MessageBody;
 use actix_web::dev::{ServiceFactory, ServiceRequest, ServiceResponse};
 use actix_web::middleware::Logger;
-use crate::api::controllers::sensor_data_handler::{get_sensor_data_handler};
+use crate::api::controllers::sensor_data_handler::{get_sensor_data_handler, add_sensor_data_handler};
 use crate::container::Container;
 
 pub fn create_app(container: Arc<Container>) -> App<
@@ -24,5 +24,6 @@ pub fn create_app(container: Arc<Container>) -> App<
         .service(
             web::scope("/api/v1/sensor")
                 .route("/data", web::get().to(get_sensor_data_handler))
+                .route("/data", web::post().to(add_sensor_data_handler))
         )
 }

@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
-use crate::domain::repositories::repository::{QueryParams, ResultPaging, RepositoryResult, DEFAULT_LIMIT, DEFAULT_OFFSET};
-use crate::domain::models::sensor_data::{Todo, CreateTodo, SensorData};
+use crate::domain::repositories::repository::{QueryParams, RepositoryResult, DEFAULT_LIMIT, DEFAULT_OFFSET};
+use crate::domain::models::sensor_data::{SensorData};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct TodoQueryParams {
@@ -26,6 +26,6 @@ pub struct SensorDataQueryParams {
 
 #[async_trait]
 pub trait SensorDataRepository: Send + Sync {
-    // async fn create(&self, new_todo: &CreateSensorData) -> RepositoryResult<SensorData>;
     async fn get(&self, sensor_id: i32) -> RepositoryResult<SensorData>;
+    async fn add(&self, sensor_id: i32, sensor_data: SensorData) -> RepositoryResult<()>;
 }

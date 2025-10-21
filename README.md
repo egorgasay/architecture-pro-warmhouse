@@ -142,6 +142,7 @@ Rel_L(NginxProxy, S3, "Отдает статику", "HTTP")
 Rel(IngressEnvoy, SensorsAPI, "Запросы от админа/пользователя", "HTTP")
 Rel(IngressEnvoy, UsersAPI, "Запросы от админа/пользователя", "HTTP")
 Rel(IngressEnvoy, StateMonitoringAPI, "Запросы от устройств и пользователей", "HTTP")
+Rel(SensorsAPI, IngressEnvoy, "Получение статуса/Realtime данных из устройства", "HTTP")
 
 ' S2S через sidecar Envoy
 Rel(SensorsAPI, StateMonitoringAPI, "Получает актуальные показания", "HTTP")
@@ -159,7 +160,8 @@ Rel(StateMonitoringAPI, PgBouncer, "Запись показаний, чтени�
 Rel(PgBouncer, Database, "Пул соединений")
 
 ' Обновление данных устройств
-Rel(sensorDevice, IngressEnvoy, "POST /sensors/:id/value", "HTTPS")
+Rel(sensorDevice, IngressEnvoy, "Обновление данных", "HTTPS")
+Rel(IngressEnvoy, sensorDevice, "Получение данных", "HTTPS")
 
 @enduml
 ```

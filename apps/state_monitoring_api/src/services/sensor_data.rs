@@ -28,4 +28,11 @@ impl SensorDataService for SensorDataServiceImpl {
             .await
             .map_err(|e| -> CommonError { e.into() })
     }
+
+    async fn add(&self, sensor_id: i32, sensor_data: SensorData) -> Result<(), CommonError> {
+        self.repository
+            .add(sensor_id, sensor_data)
+            .await
+            .map_err(|e| -> CommonError { e.into() })
+    }
 }

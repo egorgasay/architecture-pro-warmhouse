@@ -2,11 +2,10 @@
 
 diesel::table! {
     sensor_data (id) {
-        id -> Int4,
+        id -> Nullable<Int4>,
+        sensor_id -> Int4,
         value -> Varchar,
         status -> Varchar,
-        ts -> Timestamp,
+        ts -> Timestamptz,
     }
 }
-
-// diesel::allow_tables_to_appear_in_same_query!(sensor_data);

@@ -1,4 +1,5 @@
 use serde::Deserialize;
+use crate::api::dto::sensor_data::SensorDataDTO;
 
 #[derive(Clone, Deserialize)]
 pub struct Todo {
@@ -20,4 +21,16 @@ pub struct SensorData {
     pub value: String,
     pub status: String,
     pub ts: String,
+}
+
+
+impl From<SensorData> for SensorDataDTO {
+    fn from(sensor_data: SensorData) -> Self {
+        SensorDataDTO {
+            id: sensor_data.id,
+            value: sensor_data.value,
+            status: sensor_data.status,
+            ts: sensor_data.ts,
+        }
+    }
 }
