@@ -10,7 +10,7 @@ mod tests;
 async fn main() -> std::io::Result<()> {
     let container = Arc::new(Container::new());
     let server = HttpServer::new(move || { create_app(container.clone()) })
-    .bind(("127.0.0.1", 7676))?;
+    .bind(("0.0.0.0", 7676))?;
     server.run().await
 }
 

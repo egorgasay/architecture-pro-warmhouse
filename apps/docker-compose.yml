@@ -49,14 +49,15 @@ services:
       dockerfile: Dockerfile
     container_name: statemon
     environment:
-      - DATABASE_URL=postgres://${STATEMON_POSTGRES_USER}:${STATEMON_POSTGRES_PASSWORD}@statemon_database:6001/${STATEMON_POSTGRES_DB}
+      - DATABASE_URL=postgres://${STATEMON_POSTGRES_USER}:${STATEMON_POSTGRES_PASSWORD}@statemon_database:5432/${STATEMON_POSTGRES_DB}
     ports:
       - "7676:7676"
     restart: unless-stopped
     networks:
       - smarthome-network
     depends_on:
-      - statemon_database
+      statemon_database:
+        condition: service_healthy
 
   temperature_api:
     build:
@@ -83,7 +84,7 @@ services:
       temperature_api:
         condition: service_started
     environment:
-      - DATABASE_URL=postgres://${SMARTHOME_POSTGRES_USER}:${SMARTHOME_POSTGRES_PASSWORD}@smarthome_database:6000/${SMARTHOME_POSTGRES_DB}
+      - DATABASE_URL=postgres://${SMARTHOME_POSTGRES_USER}:${SMARTHOME_POSTGRES_PASSWORD}@smarthome_database:5432/${SMARTHOME_POSTGRES_DB}
       - TEMPERATURE_API_URL=http://temperature_api:5000
     ports:
       - "8080:8080"
