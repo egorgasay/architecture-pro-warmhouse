@@ -6,13 +6,13 @@ mod test_todo_controllers{
     use testcontainers::clients;
     use serde_json;
     use testcontainers::images::postgres;
-    use actix_clean_architecture::domain::constants::POSTGRESQL_DB_URI;
-    use actix_clean_architecture::infrastructure::databases::postgresql::db_pool;
+    use statemon::domain::constants::POSTGRESQL_DB_URI;
+    use statemon::infrastructure::databases::postgresql::db_pool;
     use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
     use serde_json::json;
-    use actix_clean_architecture::{container::Container, create_app::create_app};
-    use actix_clean_architecture::domain::models::sensor_data::Todo;
-    use actix_clean_architecture::domain::repositories::repository::ResultPaging;
+    use statemon::{container::Container, create_app::create_app};
+    use statemon::domain::models::sensor_data::Todo;
+    use statemon::domain::repositories::repository::ResultPaging;
 
     pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!("./migrations");
 

@@ -19,6 +19,7 @@ pub struct CreateTodo {
 pub struct SensorData {
     pub id: i32,
     pub value: String,
+    pub unit: String,
     pub status: String,
     pub ts: String,
 }
@@ -29,6 +30,7 @@ impl From<SensorData> for SensorDataDTO {
         SensorDataDTO {
             id: sensor_data.id,
             value: sensor_data.value,
+            unit: sensor_data.unit,
             status: sensor_data.status,
             ts: sensor_data.ts,
         }

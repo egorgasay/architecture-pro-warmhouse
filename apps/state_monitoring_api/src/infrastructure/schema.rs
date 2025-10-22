@@ -5,6 +5,7 @@ diesel::table! {
         id -> Nullable<Int4>,
         sensor_id -> Int4,
         value -> Varchar,
+        unit -> Varchar,
         status -> Varchar,
         ts -> Timestamptz,
     }

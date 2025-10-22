@@ -3,25 +3,6 @@
 version = 4
 
 [[package]]
-name = "actix-clean-architecture"
-version = "0.1.0"
-dependencies = [
- "actix-threadpool",
- "actix-web",
- "async-trait",
- "chrono",
- "diesel",
- "diesel_migrations",
- "dotenv",
- "env_logger",
- "futures-util",
- "log",
- "serde",
- "serde_json",
- "testcontainers",
-]
-
-[[package]]
 name = "actix-codec"
 version = "0.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1732,6 +1713,25 @@ name = "stable_deref_trait"
 version = "1.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6ce2be8dc25455e1f91df71bfa12ad37d7af1092ae736f3a6cd0e37bc7810596"
+
+[[package]]
+name = "statemon"
+version = "0.1.0"
+dependencies = [
+ "actix-threadpool",
+ "actix-web",
+ "async-trait",
+ "chrono",
+ "diesel",
+ "diesel_migrations",
+ "dotenv",
+ "env_logger",
+ "futures-util",
+ "log",
+ "serde",
+ "serde_json",
+ "testcontainers",
+]
 
 [[package]]
 name = "strsim"

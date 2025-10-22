@@ -33,6 +33,7 @@ impl SensorDataRepository for SensorDataRepositoryImpl {
                 id: None,
                 sensor_id: sensor_id,
                 value: sensor_data.value.clone(),
+                unit: sensor_data.unit.clone(),
                 status: sensor_data.status.clone(),
                 ts: NaiveDateTime::parse_from_str(&sensor_data.ts, "%Y-%m-%d %H:%M:%S").unwrap_or_default(),
             }

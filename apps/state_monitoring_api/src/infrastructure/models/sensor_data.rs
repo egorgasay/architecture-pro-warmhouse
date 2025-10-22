@@ -11,6 +11,7 @@ pub struct SensorDataDiesel {
     pub id: Option<i32>,
     pub sensor_id: i32,
     pub value: String,
+    pub unit: String,
     pub status: String,
     pub ts: NaiveDateTime,
 }
@@ -22,6 +23,7 @@ impl From<SensorData> for SensorDataDiesel {
             id: Some(t.id),
             sensor_id: 0,
             value: t.value,
+            unit: t.unit,
             status: t.status,
             ts: DateTime::from_timestamp(t.ts.parse::<i64>().unwrap_or(0), 0).unwrap().naive_utc(),
         }
@@ -33,6 +35,7 @@ impl Into<SensorData> for SensorDataDiesel {
         SensorData {
             id: self.id.unwrap_or(0),
             value: self.value,
+            unit: self.unit,
             status: self.status,
             ts: self.ts.format("%Y-%m-%d %H:%M:%S").to_string(),
         }

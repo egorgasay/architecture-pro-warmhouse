@@ -100,6 +100,132 @@ components:
         ts:
           $ref: "#/components/schemas/timestamp"
       description: "Запрос на обновление данных датчика"
+      
+    sensor_name:
+      type: string
+      example: "Living Room Temperature Sensor"
+      description: "Название датчика"
+      
+    sensor_type:
+      type: string
+      enum: [temperature]
+      example: "temperature"
+      description: "Тип датчика"
+      
+    sensor_location:
+      type: string
+      example: "living_room"
+      description: "Локация датчика"
+      
+    sensor_unit:
+      type: string
+      example: "°C"
+      description: "Единица измерения"
+      
+    sensor_numeric_id:
+      type: integer
+      example: 1
+      description: "Числовой идентификатор датчика"
+      
+    sensor:
+      type: object
+      description: "Полная информация о датчике"
+      properties:
+        id:
+          $ref: "#/components/schemas/sensor_numeric_id"
+        name:
+          $ref: "#/components/schemas/sensor_name"
+        type:
+          $ref: "#/components/schemas/sensor_type"
+        location:
+          $ref: "#/components/schemas/sensor_location"
+        value:
+          type: number
+          format: float
+          example: 22.5
+          description: "Текущее значение датчика"
+        unit:
+          $ref: "#/components/schemas/sensor_unit"
+        status:
+          $ref: "#/components/schemas/sensor_status"
+        last_updated:
+          $ref: "#/components/schemas/timestamp"
+        created_at:
+          $ref: "#/components/schemas/timestamp"
+          
+    sensor_create:
+      type: object
+      required:
+        - name
+        - type
+        - location
+      properties:
+        name:
+          $ref: "#/components/schemas/sensor_name"
+        type:
+          $ref: "#/components/schemas/sensor_type"
+        location:
+          $ref: "#/components/schemas/sensor_location"
+        unit:
+          $ref: "#/components/schemas/sensor_unit"
+      description: "Данные для создания нового датчика"
+      
+    sensor_update:
+      type: object
+      properties:
+        name:
+          $ref: "#/components/schemas/sensor_name"
+        type:
+          $ref: "#/components/schemas/sensor_type"
+        location:
+          $ref: "#/components/schemas/sensor_location"
+        value:
+          type: number
+          format: float
+          example: 23.0
+          description: "Новое значение датчика"
+        unit:
+          $ref: "#/components/schemas/sensor_unit"
+        status:
+          $ref: "#/components/schemas/sensor_status"
+      description: "Данные для обновления датчика"
+      
+    sensor_value_update:
+      type: object
+      required:
+        - value
+        - status
+      properties:
+        value:
+          type: number
+          format: float
+          example: 24.5
+          description: "Новое значение датчика"
+        status:
+          $ref: "#/components/schemas/sensor_status"
+      description: "Данные для обновления значения датчика"
+      
+    temperature_data:
+      type: object
+      properties:
+        location:
+          $ref: "#/components/schemas/sensor_location"
+        value:
+          type: number
+          format: float
+          example: 22.5
+          description: "Значение температуры"
+        unit:
+          $ref: "#/components/schemas/sensor_unit"
+        status:
+          $ref: "#/components/schemas/sensor_status"
+        timestamp:
+          $ref: "#/components/schemas/timestamp"
+        description:
+          type: string
+          example: "Comfortable temperature"
+          description: "Описание текущего состояния температуры"
+      description: "Данные температуры для локации"
 
   securitySchemes:
     o2:

@@ -1,13 +1,13 @@
 version: '3.8'
 
 services:
-  database:
+  smarthome_database:
     image: postgres:16-alpine
-    container_name: database
+    container_name: smarthome_database
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${SMARTHOME_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${SMARTHOME_POSTGRES_PASSWORD}
+      POSTGRES_DB: ${SMARTHOME_POSTGRES_DB}
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 10s
@@ -18,9 +18,45 @@ services:
     - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     - postgres_data:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "6000:5432"
     networks:
       - smarthome-network
+
+  statemon_database:
+    image: postgres:16-alpine
+    container_name: statemon_database
+    environment:
+      POSTGRES_USER: ${STATEMON_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${STATEMON_POSTGRES_PASSWORD}
+      POSTGRES_DB: ${STATEMON_POSTGRES_DB}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    volumes:
+    # - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "6001:5432"
+    networks:
+      - smarthome-network
+      
+  statemon:
+    build:
+      context: ./state_monitoring_api
+      dockerfile: Dockerfile
+    container_name: statemon
+    environment:
+      - DATABASE_URL=postgres://${STATEMON_POSTGRES_USER}:${STATEMON_POSTGRES_PASSWORD}@statemon_database:6001/${STATEMON_POSTGRES_DB}
+    ports:
+      - "7676:7676"
+    restart: unless-stopped
+    networks:
+      - smarthome-network
+    depends_on:
+      - statemon_database
 
   temperature_api:
     build:
@@ -42,12 +78,12 @@ services:
       dockerfile: Dockerfile
     container_name: smarthome-app
     depends_on:
-      database:
+      smarthome_database:
         condition: service_healthy
       temperature_api:
         condition: service_started
     environment:
-      - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      - DATABASE_URL=postgres://${SMARTHOME_POSTGRES_USER}:${SMARTHOME_POSTGRES_PASSWORD}@smarthome_database:6000/${SMARTHOME_POSTGRES_DB}
       - TEMPERATURE_API_URL=http://temperature_api:5000
     ports:
       - "8080:8080"
