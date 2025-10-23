@@ -49,7 +49,6 @@ class SensorService:
         # Enum наследуются от str, psycopg2 автоматически их обработает
         # Но для явности конвертируем в строки
         db_data['type'] = str(db_data['type'].value)
-        db_data['status'] = str(db_data['status'].value)
         
         created_sensor = self.repository.create_sensor(db_data)
         return SensorResponse(**created_sensor).model_dump()
@@ -91,8 +90,6 @@ class SensorService:
         # Конвертируем enum в строки для БД
         if 'type' in db_data:
             db_data['type'] = str(db_data['type'].value)
-        if 'status' in db_data:
-            db_data['status'] = str(db_data['status'].value)
         
         updated_sensor = self.repository.update_sensor(sensor_id, db_data)
         return SensorResponse(**updated_sensor).model_dump()

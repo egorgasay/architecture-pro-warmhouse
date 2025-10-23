@@ -9,10 +9,6 @@ from enum import Enum
 class SensorType(str, Enum):
     """Допустимые типы сенсоров"""
     TEMPERATURE = "temperature"
-    HUMIDITY = "humidity"
-    PRESSURE = "pressure"
-    MOTION = "motion"
-    LIGHT = "light"
 
 
 class SensorStatus(str, Enum):
@@ -28,13 +24,13 @@ class SensorBase(BaseModel):
     name: str = Field(..., min_length=1, max_length=100, description="Название сенсора")
     type: SensorType = Field(..., description="Тип сенсора")
     location: str = Field(..., min_length=1, max_length=200, description="Местоположение сенсора")
-    unit: str = Field(..., min_length=1, max_length=20, description="Единица измерения")
+    unit: Optional[str] = Field(None, min_length=1, max_length=20, description="Единица измерения")
 
 
 class SensorCreate(SensorBase):
     """Модель для создания сенсора"""
-    value: float = Field(..., description="Значение показания")
-    status: SensorStatus = Field(default=SensorStatus.ACTIVE, description="Статус сенсора")
+    pass
+    
 
 
 class SensorUpdate(BaseModel):
@@ -42,16 +38,18 @@ class SensorUpdate(BaseModel):
     name: Optional[str] = Field(None, min_length=1, max_length=100)
     type: Optional[SensorType] = None
     location: Optional[str] = Field(None, min_length=1, max_length=200)
-    value: Optional[float] = None
     unit: Optional[str] = Field(None, min_length=1, max_length=20)
-    status: Optional[SensorStatus] = None
 
 
-class SensorResponse(SensorBase):
+class SensorResponse(BaseModel):
     """Модель ответа с полной информацией о сенсоре"""
     id: int
-    value: float
-    status: SensorStatus
+    name: str = Field(..., min_length=1, max_length=100, description="Название сенсора")
+    type: SensorType = Field(..., description="Тип сенсора")
+    location: str = Field(..., min_length=1, max_length=200, description="Местоположение сенсора")
+    unit: Optional[str] = Field(None, min_length=1, max_length=20, description="Единица измерения")
+    value: Optional[float] = Field(None, description="Текущее значение сенсора")
+    status: Optional[SensorStatus] = Field(None, description="Статус сенсора")
     last_updated: datetime
     created_at: datetime
     

@@ -50,7 +50,7 @@ class PostgresRepository:
         try:
             with self.get_cursor() as cursor:
                 cursor.execute(
-                    "SELECT id, name, type, location, value, unit, status, last_updated, created_at FROM sensors ORDER BY id"
+                    "SELECT id, name, type, location, last_updated, created_at FROM sensors ORDER BY id"
                 )
                 rows = cursor.fetchall()
                 return [self._row_to_dict(row) for row in rows]
@@ -74,19 +74,16 @@ class PostgresRepository:
                 cursor.execute(
                     """
                     INSERT INTO sensors (
-                        name, type, location, value, unit, status, last_updated, created_at
+                        name, type, location, last_updated, created_at
                     ) VALUES (
-                        %s, %s, %s, %s, %s, %s, %s, %s
+                        %s, %s, %s, %s, %s
                     )
-                    RETURNING id, name, type, location, value, unit, status, last_updated, created_at
+                    RETURNING id, name, type, location, last_updated, created_at
                     """,
                     (
                         data['name'], 
                         data['type'], 
                         data['location'], 
-                        data['value'], 
-                        data['unit'], 
-                        data['status'], 
                         data['last_updated'], 
                         data['created_at']
                     )
@@ -116,7 +113,7 @@ class PostgresRepository:
         try:
             with self.get_cursor() as cursor:
                 cursor.execute(
-                    "SELECT id, name, type, location, value, unit, status, last_updated, created_at FROM sensors WHERE id = %s",
+                    "SELECT id, name, type, location, last_updated, created_at FROM sensors WHERE id = %s",
                     (sensor_id,)
                 )
                 row = cursor.fetchone()
@@ -143,7 +140,7 @@ class PostgresRepository:
         update_fields = []
         values = []
         
-        for key in ['name', 'type', 'location', 'value', 'unit', 'status']:
+        for key in ['name', 'type', 'location']:
             if key in data:
                 update_fields.append(f"{key} = %s")
                 values.append(data[key])
@@ -161,7 +158,7 @@ class PostgresRepository:
                     UPDATE sensors 
                     SET {', '.join(update_fields)}
                     WHERE id = %s
-                    RETURNING id, name, type, location, value, unit, status, last_updated, created_at
+                    RETURNING id, name, type, location, last_updated, created_at
                 """
                 cursor.execute(query, values)
                 row = cursor.fetchone()
@@ -198,17 +195,20 @@ class PostgresRepository:
     @staticmethod
     def _row_to_dict(row: tuple) -> Dict[str, Any]:
         """Преобразование строки БД в словарь"""
-        return {
+        from datetime import datetime
+        
+        result = {
             'id': row[0],
             'name': row[1],
             'type': row[2],
             'location': row[3],
-            'value': row[4],
-            'unit': row[5],
-            'status': row[6],
-            'last_updated': row[7],
-            'created_at': row[8]
+            'last_updated': str(row[4].isoformat()) if row[4] else None,
+            'created_at': str(row[5].isoformat()) if row[5] else None
         }
+        print(result)
+        print(type(result['last_updated']))
+        print(type(result['created_at']))
+        return result
     
     def close(self):
         """Закрыть все подключения в пуле"""

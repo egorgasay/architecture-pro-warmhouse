@@ -112,15 +112,15 @@ class SensorController:
         return jsonify(sensor), 201
     
     @error_handler
-    def get_sensor_by_id(self, sensor_id: int) -> Tuple[Any, int]:
+    def get_sensor_by_id(self, id: int) -> Tuple[Any, int]:
         """Получить сенсор по ID"""
-        sensor = self.sensor_service.get_sensor_by_id(sensor_id)
+        sensor = self.sensor_service.get_sensor_by_id(id)
         return jsonify(sensor), 200
     
     @error_handler
     @validate_content_type
     @validate_payload_size
-    def update_sensor(self, sensor_id: int) -> Tuple[Any, int]:
+    def update_sensor(self, id: int) -> Tuple[Any, int]:
         """Обновить сенсор"""
         if not request.is_json:
             raise ValidationError("Request body must be JSON")
@@ -129,13 +129,13 @@ class SensorController:
         if not data:
             raise ValidationError("Empty request body")
         
-        sensor = self.sensor_service.update_sensor(sensor_id, data)
+        sensor = self.sensor_service.update_sensor(id, data)
         return jsonify(sensor), 200
     
     @error_handler
-    def delete_sensor(self, sensor_id: int) -> Tuple[Any, int]:
+    def delete_sensor(self, id: int) -> Tuple[Any, int]:
         """Удалить сенсор"""
-        self.sensor_service.delete_sensor(sensor_id)
+        self.sensor_service.delete_sensor(id)
         return jsonify({"message": "Sensor deleted successfully"}), 200
     
     @error_handler

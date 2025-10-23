@@ -3,11 +3,14 @@ from controllers.controller import SensorController
 from services.service import SensorService
 from repositories.repository import PostgresRepository
 import os
+import json
+from datetime import datetime
 
 
 def create_app():
     """Фабрика приложения с внедрением зависимостей"""
     app = Flask(__name__)
+    
     
     # Создание экземпляров слоев
     repository = PostgresRepository(
@@ -29,4 +32,4 @@ def create_app():
 
 if __name__ == '__main__':
     app = create_app()
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=8081, debug=True)
