@@ -3,9 +3,6 @@ use actix_web::{HttpServer};
 use statemon::{container::Container, create_app::create_app};
 
 
-#[cfg(test)]
-mod tests;
-
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     let container = Arc::new(Container::new());
