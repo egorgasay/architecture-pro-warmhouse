@@ -23,6 +23,11 @@ paths:
           schema:
             $ref: "CommonComponents.yaml#/components/schemas/sensor_id"
           description: "Идентификатор датчика"
+        - name: location
+          in: query
+          schema:
+            $ref: "CommonComponents.yaml#/components/schemas/sensor_location"
+          description: "Локация датчика"
       security: 
         - device_key: []
       responses:

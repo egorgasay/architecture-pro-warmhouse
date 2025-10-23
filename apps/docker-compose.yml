@@ -15,7 +15,7 @@ services:
       retries: 5
       start_period: 10s
     volumes:
-    - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    - ./smart_home/init.sql:/docker-entrypoint-initdb.d/init.sql
     - smarthome_postgres_data:/var/lib/postgresql/data
     ports:
       - "6000:5432"
@@ -36,7 +36,7 @@ services:
       retries: 5
       start_period: 10s
     volumes:
-    # - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    - ./state_monitoring_api/init.sql:/docker-entrypoint-initdb.d/init.sql
     - statemon_postgres_data:/var/lib/postgresql/data
     ports:
       - "6001:5432"
@@ -58,7 +58,7 @@ services:
       start_period: 10s
     volumes:
     - sensors_postgres_data:/var/lib/postgresql/data
-    - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    - ./sensors_api/init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - "6002:5432"
     networks:

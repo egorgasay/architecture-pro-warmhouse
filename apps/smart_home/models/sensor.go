@@ -1,9 +1,5 @@
 package models
 
-import (
-	"time"
-)
-
 // SensorType represents the type of sensor
 type SensorType string
 
@@ -20,8 +16,8 @@ type Sensor struct {
 	Value       float64    `json:"value"`
 	Unit        string     `json:"unit"`
 	Status      string     `json:"status"`
-	LastUpdated time.Time  `json:"last_updated"`
-	CreatedAt   time.Time  `json:"created_at"`
+	LastUpdated string     `json:"last_updated"`
+	CreatedAt   string     `json:"created_at"`
 }
 
 // SensorCreate represents the data needed to create a new sensor
@@ -40,4 +36,14 @@ type SensorUpdate struct {
 	Value    *float64   `json:"value"`
 	Unit     string     `json:"unit"`
 	Status   string     `json:"status"`
+}
+
+// SensorData represents the data of a sensor
+type SensorData struct {
+	ID        int     `json:"id"`
+	Location  string  `json:"location"`
+	Value     float64 `json:"value"`
+	Unit      string  `json:"unit"`
+	Status    string  `json:"status"`
+	CreatedAt string  `json:"created_at"`
 }
