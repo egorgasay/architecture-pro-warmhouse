@@ -16,7 +16,7 @@ services:
       start_period: 10s
     volumes:
     - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-    - postgres_data:/var/lib/postgresql/data
+    - smarthome_postgres_data:/var/lib/postgresql/data
     ports:
       - "6000:5432"
     networks:
@@ -37,11 +37,48 @@ services:
       start_period: 10s
     volumes:
     # - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-    - postgres_data:/var/lib/postgresql/data
+    - statemon_postgres_data:/var/lib/postgresql/data
     ports:
       - "6001:5432"
     networks:
       - smarthome-network
+
+  sensors_database:
+    image: postgres:16-alpine
+    container_name: sensors_database
+    environment:
+      POSTGRES_USER: ${SENSORS_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${SENSORS_POSTGRES_PASSWORD}
+      POSTGRES_DB: ${SENSORS_POSTGRES_DB}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    volumes:
+    - sensors_postgres_data:/var/lib/postgresql/data
+    - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "6002:5432"
+    networks:
+      - smarthome-network
+  
+  sensors_api:
+    build:
+      context: ./sensors_api
+      dockerfile: Dockerfile
+    container_name: sensors_api
+    environment:
+      - DATABASE_URL=postgres://${SENSORS_POSTGRES_USER}:${SENSORS_POSTGRES_PASSWORD}@sensors_database:5432/${SENSORS_POSTGRES_DB}
+    ports:
+      - "8081:8081"
+    restart: unless-stopped
+    networks:
+      - smarthome-network
+    depends_on:
+      sensors_database:
+        condition: service_healthy
       
   statemon:
     build:
@@ -93,7 +130,9 @@ services:
       - smarthome-network
 
 volumes:
-  postgres_data:
+  smarthome_postgres_data:
+  statemon_postgres_data:
+  sensors_postgres_data:
 
 networks:
   smarthome-network:

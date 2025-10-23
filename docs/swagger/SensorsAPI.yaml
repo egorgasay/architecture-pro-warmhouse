@@ -167,40 +167,4 @@ paths:
           $ref: 'CommonComponents.yaml#/components/responses/unauthorized_response'
         '500':
           $ref: 'CommonComponents.yaml#/components/responses/internal_error_response'
-          
-  /api/v1/sensors/{id}/value:
-    patch:
-      summary: Обновить значение датчика
-      description: Частичное обновление - изменяет только значение и статус датчика
-      operationId: UpdateSensorValue
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: ID датчика
-          schema:
-            $ref: 'CommonComponents.yaml#/components/schemas/sensor_numeric_id'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: 'CommonComponents.yaml#/components/schemas/sensor_value_update'
-      responses:
-        '200':
-          description: Значение датчика успешно обновлено
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: "Sensor value updated successfully"
-        '400':
-          $ref: 'CommonComponents.yaml#/components/responses/bad_request_response'
-        '401':
-          $ref: 'CommonComponents.yaml#/components/responses/unauthorized_response'
-        '500':
-          $ref: 'CommonComponents.yaml#/components/responses/internal_error_response'
 
