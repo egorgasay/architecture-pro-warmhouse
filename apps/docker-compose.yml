@@ -71,6 +71,7 @@ services:
     container_name: sensors_api
     environment:
       - DATABASE_URL=postgres://${SENSORS_POSTGRES_USER}:${SENSORS_POSTGRES_PASSWORD}@sensors_database:5432/${SENSORS_POSTGRES_DB}
+      - STATE_MONITORING_API_URL=http://statemon:7676
     ports:
       - "8081:8081"
     restart: unless-stopped
@@ -110,7 +111,7 @@ services:
     networks:
       - smarthome-network
 
-  app:
+  smart_home:
     build:
       context: ./smart_home
       dockerfile: Dockerfile

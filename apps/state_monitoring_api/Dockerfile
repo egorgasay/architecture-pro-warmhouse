@@ -28,4 +28,6 @@ RUN apt-get update && apt-get install -y libpq5 ca-certificates && rm -rf /var/l
 
 COPY --from=builder /usr/src/app/target/release/statemon /usr/local/bin/statemon
 
+ENV RUST_LOG="statemon=info,actix_web=info"
+
 CMD ["statemon"]

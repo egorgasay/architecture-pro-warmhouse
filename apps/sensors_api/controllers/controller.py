@@ -65,13 +65,13 @@ def error_handler(f: Callable) -> Callable:
             logger.error(f"Sensor API Exception: {str(e)}")
             return jsonify({
                 "error": e.message,
-                "status": e.status_code
+                "status_code": e.status_code
             }), e.status_code
         except ValueError as e:
             logger.error(f"Invalid value: {str(e)}")
             return jsonify({
                 "error": f"Invalid value: {str(e)}",
-                "status": 400
+                "status_code": 400
             }), 400
         except Exception as e:
             # Не раскрываем внутренние ошибки клиенту
@@ -79,7 +79,7 @@ def error_handler(f: Callable) -> Callable:
             logger.exception(e)
             return jsonify({
                 "error": "Internal server error",
-                "status": 500
+                "status_code": 500
             }), 500
     return decorated_function
 

@@ -53,6 +53,8 @@ class PostgresRepository:
                     "SELECT id, name, type, location, last_updated, created_at FROM sensors ORDER BY id"
                 )
                 rows = cursor.fetchall()
+                if not rows:
+                    return []
                 return [self._row_to_dict(row) for row in rows]
         except DatabaseError:
             raise
@@ -205,9 +207,7 @@ class PostgresRepository:
             'last_updated': str(row[4].isoformat()) if row[4] else None,
             'created_at': str(row[5].isoformat()) if row[5] else None
         }
-        print(result)
-        print(type(result['last_updated']))
-        print(type(result['created_at']))
+        
         return result
     
     def close(self):

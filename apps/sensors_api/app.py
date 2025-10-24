@@ -5,7 +5,7 @@ from repositories.repository import PostgresRepository
 import os
 import json
 from datetime import datetime
-
+from senders.statemon_client import StateMonitoringClient
 
 def create_app():
     """Фабрика приложения с внедрением зависимостей"""
@@ -14,9 +14,10 @@ def create_app():
     
     # Создание экземпляров слоев
     repository = PostgresRepository(
-        db_url=os.getenv("DATABASE_URL"),
+        db_url=os.getenv("DATABASE_URL","postgresql://postgres:qwerty@127.0.0.1:6002/sensors_api"),
     )
-    service = SensorService(repository)
+    statemon_client = StateMonitoringClient(base_url=os.getenv("STATE_MONITORING_API_URL","http://127.0.0.1:7676"))
+    service = SensorService(repository, statemon_client)
     controller = SensorController(service)
     
     # Регистрация маршрутов

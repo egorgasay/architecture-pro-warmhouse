@@ -1,5 +1,7 @@
 package models
 
+import "time"
+
 // SensorType represents the type of sensor
 type SensorType string
 
@@ -13,9 +15,9 @@ type Sensor struct {
 	Name        string     `json:"name"`
 	Type        SensorType `json:"type"`
 	Location    string     `json:"location"`
-	Value       float64    `json:"value"`
-	Unit        string     `json:"unit"`
-	Status      string     `json:"status"`
+	Value       *float64   `json:"value,omitempty"`
+	Unit        *string    `json:"unit,omitempty"`
+	Status      *string    `json:"status,omitempty"`
 	LastUpdated string     `json:"last_updated"`
 	CreatedAt   string     `json:"created_at"`
 }
@@ -40,10 +42,33 @@ type SensorUpdate struct {
 
 // SensorData represents the data of a sensor
 type SensorData struct {
-	ID        int     `json:"id"`
-	Location  string  `json:"location"`
-	Value     float64 `json:"value"`
-	Unit      string  `json:"unit"`
-	Status    string  `json:"status"`
-	CreatedAt string  `json:"created_at"`
+	ID        int    `json:"id"`
+	Location  string `json:"location"`
+	Unit      string `json:"unit"`
+	Status    string `json:"status"`
+	CreatedAt string `json:"created_at"`
+
+	// Для обратной совместимости
+	Value any `json:"value"`
+}
+
+type ErrorResponse struct {
+	Err        string `json:"error"`
+	StatusCode int    `json:"status_code"`
+}
+
+func (e ErrorResponse) Error() string {
+	return e.Err
+}
+
+// TemperatureResponse represents the response from the temperature API
+type TemperatureResponse struct {
+	Value       float64   `json:"value"`
+	Unit        string    `json:"unit"`
+	Timestamp   time.Time `json:"timestamp"`
+	Location    string    `json:"location"`
+	Status      string    `json:"status"`
+	SensorID    string    `json:"sensor_id"`
+	SensorType  string    `json:"sensor_type"`
+	Description string    `json:"description"`
 }

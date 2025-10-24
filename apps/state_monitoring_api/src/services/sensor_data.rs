@@ -33,7 +33,10 @@ impl SensorDataService for SensorDataServiceImpl {
             },
             Err(e) => {
                 error!("SensorDataService::get - failed to retrieve data for sensor_id: {} - error: {:?}", sensor_id, e);
-                Err(e.into())
+                Err(CommonError {
+                    message: format!("Failed to retrieve sensor data: {}", e.message),
+                    code: 404,
+                })
             }
         }
     }
@@ -48,7 +51,10 @@ impl SensorDataService for SensorDataServiceImpl {
             },
             Err(e) => {
                 error!("SensorDataService::add - failed to add data for sensor_id: {} - error: {:?}", sensor_id, e);
-                Err(e.into())
+                Err(CommonError {
+                    message: format!("Failed to add sensor data: {}", e.message),
+                    code: 422,
+                })
             }
         }
     }

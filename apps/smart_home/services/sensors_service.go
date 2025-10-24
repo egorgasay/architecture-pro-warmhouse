@@ -38,35 +38,25 @@ func (s *SensorsService) GetSensors() ([]models.Sensor, error) {
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
-	}
-
-	var sensors []models.Sensor
-	if err := json.NewDecoder(resp.Body).Decode(&sensors); err != nil {
-		return nil, fmt.Errorf("error decoding sensors response: %w", err)
-	}
-
-	return sensors, nil
+	return handleResponse[[]models.Sensor](s, resp, http.StatusOK, err)
 }
 
-func (s *SensorsService) handleResponse(resp *http.Response, expectedStatusCode int, err error) (models.Sensor, error) {
+func handleResponse[V any](s *SensorsService, resp *http.Response, expectedStatusCode int, err error) (V, error) {
+	var v V
 	if err != nil {
-		return models.Sensor{}, fmt.Errorf("error fetching sensor data: %w", err)
+		return v, fmt.Errorf("error fetching sensor data: %w", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != expectedStatusCode {
-		logErrFromResponse(resp, s.logger)
-		return models.Sensor{}, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+		return v, logErrFromResponse(resp, s.logger)
 	}
 
-	var sensor models.Sensor
-	if err := json.NewDecoder(resp.Body).Decode(&sensor); err != nil {
-		return models.Sensor{}, fmt.Errorf("error decoding sensor response: %w", err)
+	if err := json.NewDecoder(resp.Body).Decode(&v); err != nil {
+		return v, fmt.Errorf("error decoding sensor response: %w", err)
 	}
 
-	return sensor, nil
+	return v, nil
 }
 
 // GetSensorByID fetches a sensor by its ID from the external API
@@ -74,7 +64,7 @@ func (s *SensorsService) GetSensorByID(id int) (models.Sensor, error) {
 	url := fmt.Sprintf("%s/api/v1/sensors/%d", s.BaseURL, id)
 
 	resp, err := s.HTTPClient.Get(url)
-	return s.handleResponse(resp, http.StatusOK, err)
+	return handleResponse[models.Sensor](s, resp, http.StatusOK, err)
 }
 
 // CreateSensor creates a new sensor in the external API
@@ -87,7 +77,7 @@ func (s *SensorsService) CreateSensor(sensor models.Sensor) (models.Sensor, erro
 	}
 
 	resp, err := s.HTTPClient.Post(url, "application/json", bytes.NewBuffer(jsonData))
-	return s.handleResponse(resp, http.StatusCreated, err)
+	return handleResponse[models.Sensor](s, resp, http.StatusCreated, err)
 }
 
 // UpdateSensor updates an existing sensor in the external API
@@ -107,7 +97,7 @@ func (s *SensorsService) UpdateSensor(id int, sensor models.Sensor) (models.Sens
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := s.HTTPClient.Do(req)
-	return s.handleResponse(resp, http.StatusOK, err)
+	return handleResponse[models.Sensor](s, resp, http.StatusOK, err)
 }
 
 // DeleteSensor deletes an existing sensor in the external API
@@ -128,9 +118,17 @@ func (s *SensorsService) DeleteSensor(id int) error {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusNoContent {
-		logErrFromResponse(resp, s.logger)
-		return fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+		return logErrFromResponse(resp, s.logger)
 	}
 
 	return nil
+}
+
+
+func (s *SensorsService) GetSensorDataByLocation(location string) (*models.TemperatureResponse, error) {
+	url := fmt.Sprintf("%s/api/v1/sensors/location/%s", s.BaseURL, location)
+
+	resp, err := s.HTTPClient.Get(url)
+	t, err := handleResponse[models.TemperatureResponse](s, resp, http.StatusOK, err)
+	return &t, err
 }

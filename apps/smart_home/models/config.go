@@ -14,16 +14,16 @@ type Config struct {
 }
 
 type SensorsAPICalls struct {
-	GetSensors        bool
-	GetSensorByID     bool
-	CreateSensor      bool
-	UpdateSensor      bool
-	DeleteSensor      bool
-	UpdateSensorValue bool
+	GetSensors               bool
+	GetSensorByID            bool
+	CreateSensor             bool
+	UpdateSensor             bool
+	DeleteSensor             bool
+	UpdateSensorValue        bool
+	GetTemperatureByLocation bool
 }
 
 type StateMonitoringAPICalls struct {
-	GetSensorData bool
 	UpdateSensorData bool
 }
 
@@ -35,15 +35,15 @@ func NewConfig() *Config {
 		StateMonitoringAPIURL: getEnv("STATEMON_API_URL", "http://statemon:7676"),
 		ServerAddress:         getEnv("SERVER_ADDRESS", ":8080"),
 		SensorsAPICalls: SensorsAPICalls{
-			GetSensors:        getEnv("SENSORS_API_GET_SENSORS", "true") == "true",
-			GetSensorByID:     getEnv("SENSORS_API_GET_SENSOR_BY_ID", "true") == "true",
-			CreateSensor:      getEnv("SENSORS_API_CREATE_SENSOR", "true") == "true",
-			UpdateSensor:      getEnv("SENSORS_API_UPDATE_SENSOR", "true") == "true",
-			DeleteSensor:      getEnv("SENSORS_API_DELETE_SENSOR", "true") == "true",
-			UpdateSensorValue: getEnv("SENSORS_API_UPDATE_SENSOR_VALUE", "true") == "true",
+			GetSensors:               getEnv("SENSORS_API_GET_SENSORS", "true") == "true",
+			GetSensorByID:            getEnv("SENSORS_API_GET_SENSOR_BY_ID", "true") == "true",
+			CreateSensor:             getEnv("SENSORS_API_CREATE_SENSOR", "true") == "true",
+			UpdateSensor:             getEnv("SENSORS_API_UPDATE_SENSOR", "true") == "true",
+			DeleteSensor:             getEnv("SENSORS_API_DELETE_SENSOR", "true") == "true",
+			UpdateSensorValue:        getEnv("SENSORS_API_UPDATE_SENSOR_VALUE", "true") == "true",
+			GetTemperatureByLocation: getEnv("SENSORS_API_GET_TEMPERATURE_BY_LOCATION", "true") == "true",
 		},
 		StateMonitoringAPICalls: StateMonitoringAPICalls{
-			GetSensorData: getEnv("STATEMON_API_GET_SENSOR_DATA", "true") == "true",
 			UpdateSensorData: getEnv("STATEMON_API_UPDATE_SENSOR_DATA", "true") == "true",
 		},
 	}
