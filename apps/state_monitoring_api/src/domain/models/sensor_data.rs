@@ -15,7 +15,7 @@ pub struct CreateTodo {
     pub description: String,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct SensorData {
     pub id: i32,
     pub value: String,

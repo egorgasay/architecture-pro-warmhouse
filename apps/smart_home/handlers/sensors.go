@@ -250,6 +250,18 @@ func (h *SensorHandler) UpdateSensorValue(c *gin.Context) {
 	if !h.Config.StateMonitoringAPICalls.UpdateSensorData {
 		err = h.DB.UpdateSensorValue(context.Background(), id, request.Value, request.Status)
 	} else {
+		if request.CreatedAt == "" {
+			request.CreatedAt = time.Now().Format(time.RFC3339)
+		} 
+
+		if request.Unit == "" {
+			request.Unit = "unknown"
+		}
+
+		if request.Status == "" {
+			request.Status = "unknown"
+		}
+
 		err = h.StateMonitoringService.UpdateSensorData(id, request)
 	}
 	if err != nil {

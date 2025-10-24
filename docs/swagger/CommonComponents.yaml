@@ -86,18 +86,16 @@ components:
     sensor_update_request:
       type: object
       required:
-        - id
         - value
         - status
+        - unit
         - ts
       properties:
-        id:
-          $ref: "#/components/schemas/sensor_id"
-        value:
-          $ref: "#/components/schemas/sensor_value"
+        unit:
+          $ref: "#/components/schemas/sensor_unit"
         status:
           $ref: "#/components/schemas/sensor_status"
-        ts:
+        timestamp:
           $ref: "#/components/schemas/timestamp"
       description: "Запрос на обновление данных датчика"
       

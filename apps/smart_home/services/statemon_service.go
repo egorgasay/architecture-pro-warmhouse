@@ -62,7 +62,7 @@ func (s *StateMonitoringService) GetSensorData(sensorID int) (*models.SensorData
 
 // api/v1/sensor/update
 func (s *StateMonitoringService) UpdateSensorData(sensorID int, sensorData models.SensorData) error {
-	url := fmt.Sprintf("%s/api/v1/sensor/update?sensor_id=%d", s.BaseURL, sensorID)
+	url := fmt.Sprintf("%s/api/v1/sensor/data?sensor_id=%d", s.BaseURL, sensorID)
 
 	jsonData, err := json.Marshal(sensorData)
 	if err != nil {

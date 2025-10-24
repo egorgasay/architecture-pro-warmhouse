@@ -1,7 +1,7 @@
-SELECT 'CREATE DATABASE statemonitoring'
-WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'statemonitoring')\gexec
+SELECT 'CREATE DATABASE statemon'
+WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'statemon')\gexec
 
-\c statemonitoring;
+\c statemon;
 
 CREATE OR REPLACE FUNCTION diesel_manage_updated_at(_tbl regclass) RETURNS VOID AS $$
 BEGIN
@@ -25,7 +25,9 @@ $$ LANGUAGE plpgsql;
 
 CREATE TABLE IF NOT EXISTS sensor_data (
     id SERIAL PRIMARY KEY,
+    sensor_id INTEGER NOT NULL,
     value VARCHAR NOT NULL,
+    unit VARCHAR NOT NULL,
     status VARCHAR NOT NULL,
-    ts TIMESTAMP NOT NULL DEFAULT NOW()
+    ts TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
