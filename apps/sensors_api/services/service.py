@@ -1,9 +1,9 @@
-"""Сервисный слой с валидацией данных"""
+"""Сервисный слой данных"""
 
 from datetime import datetime
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from repositories.repository import PostgresRepository
-from models.schemas import SensorCreate, SensorUpdate, SensorResponse
+from models.schemas import SensorCreate, SensorUpdate, SensorResponse, SensorByLocationResponse
 from pydantic import ValidationError as PydanticValidationError
 from exceptions import ValidationError
 import logging
@@ -54,7 +54,7 @@ class SensorService:
     
     def create_sensor(self, data: dict) -> Dict[str, Any]:
         """
-        Создать новый сенсор с валидацией
+        Создать новый сенсор
         
         Args:
             data: Сырые данные от клиента
@@ -89,7 +89,7 @@ class SensorService:
         return sensor.model_dump()
     
     def get_sensor_by_id(self, sensor_id: int) -> Dict[str, Any]:
-        """Получить сенсор по ID с валидацией"""
+        """Получить сенсор по ID"""
         if not isinstance(sensor_id, int) or sensor_id <= 0:
             raise ValidationError("Invalid sensor ID")
         
@@ -106,7 +106,7 @@ class SensorService:
     
     def update_sensor(self, sensor_id: int, data: dict) -> Dict[str, Any]:
         """
-        Обновить сенсор с валидацией
+        Обновить сенсор
         
         Args:
             sensor_id: ID сенсора
@@ -140,6 +140,57 @@ class SensorService:
             status=data.get('status', None)
         )
         return sensor.model_dump()
+    
+    def get_sensor_by_location(self, location: str) -> Optional[Dict[str, Any]]:
+        """
+        Получить сенсор по локации с данными из state_monitoring_api
+        
+        Args:
+            location: Локация сенсора
+            
+        Returns:
+            Словарь с данными сенсора или None если не найден
+        """
+        if not location or not isinstance(location, str):
+            raise ValidationError("Invalid location")
+        
+        sensor = self.repository.get_sensor_by_location(location)
+        if not sensor:
+            return None
+        
+        data = self.get_data_from_statemon(sensor['id'])
+        
+        try:
+            description = f"cold temperature in the room"
+            value = data.get('value', None)
+            if value is None:
+                description = f"description for value is None"
+            elif value > 25:
+                description = f"description for value > 25"
+            elif value < 20:
+                description = f"description for value < 20"
+            else:
+                description = f"description for value between 20 and 25"
+            
+            sensor = self.repository.get_sensor_by_location(location)
+
+            logger.error(f"Sensor: {sensor}")
+            logger.error(f"Sensor created_at: {sensor.get('created_at', None)}")
+            
+            sensor_response = SensorByLocationResponse(
+                value=value,
+                unit=data.get('unit', None),
+                status=data.get('status', None),
+                timestamp=sensor.get('created_at', None),
+                description=description,
+                sensor_id=str(sensor.get('id', None)),
+                sensor_type=sensor.get('type', None),
+                location=location,
+            )
+            return sensor_response.model_dump()
+        except Exception as e:
+            logger.error(f"Error creating SensorByLocationResponse for sensor {sensor.get('id')}: {e}")
+            return None
     
     def delete_sensor(self, sensor_id: int) -> bool:
         """Удалить сенсор"""

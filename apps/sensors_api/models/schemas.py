@@ -56,3 +56,16 @@ class SensorResponse(BaseModel):
     class Config:
         from_attributes = True
 
+class SensorByLocationResponse(BaseModel):
+    """Модель ответа с полной информацией о сенсоре по локации"""
+    value: Optional[float] = Field(None, description="Текущее значение сенсора")
+    unit: Optional[str] = Field(None, min_length=1, max_length=20, description="Единица измерения")
+    status: Optional[SensorStatus] = Field(None, description="Статус сенсора")
+    timestamp: Optional[datetime] = Field(None, description="Временная метка")
+    location: str = Field(..., min_length=1, max_length=200, description="Местоположение сенсора")
+    description: str = Field(..., description="Описание сенсора")
+    sensor_id: str = Field(..., description="Идентификатор сенсора")
+    sensor_type: SensorType = Field(..., description="Тип сенсора")
+    
+    class Config:
+        from_attributes = True

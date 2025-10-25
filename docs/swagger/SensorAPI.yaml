@@ -15,7 +15,7 @@ paths:
     get:
       summary: Получает данные 
       description: Метод получающий температуру
-      operationId: GetTemperature
+      operationId: GetTemperatureByLocation
       parameters:
         - name: location
           in: query
@@ -26,14 +26,29 @@ paths:
                 type: string
                 example: "Гостиная"
             description: "Локация"
-        - name: sensorId
-          in: query
-          schema:
-            type: string
-            properties:
-              sensorId:
-                $ref: "CommonComponents.yaml#/components/schemas/sensor_id"
-            description: "Идентификатор датчика"
+      security: 
+        - device_key: []
+      responses:
+        '200':
+          description: Данные датчика получены успешно
+          content:
+            application/json:
+              schema:
+                $ref: "CommonComponents.yaml#/components/schemas/sensor_data_item"
+        '400':
+          $ref: "CommonComponents.yaml#/components/responses/bad_request_response"
+        '401':
+          $ref: "CommonComponents.yaml#/components/responses/unauthorized_response"
+        '403':
+          $ref: "CommonComponents.yaml#/components/responses/forbidden_response"
+        '500':
+          $ref: "CommonComponents.yaml#/components/responses/internal_error_response"
+
+  /temperature/{sensor_id}:
+    get:
+      summary: Получает данные 
+      description: Метод получающий температуру по идентификатору датчика
+      operationId: GetTemperatureByID
       security: 
         - device_key: []
       responses:

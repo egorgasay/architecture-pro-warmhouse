@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"smarthome/models"
@@ -52,8 +53,14 @@ func handleResponse[V any](s *SensorsService, resp *http.Response, expectedStatu
 		return v, logErrFromResponse(resp, s.logger)
 	}
 
-	if err := json.NewDecoder(resp.Body).Decode(&v); err != nil {
-		return v, fmt.Errorf("error decoding sensor response: %w", err)
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return v, fmt.Errorf("error reading response body: %w", err)
+	}
+
+	if err := json.Unmarshal(body, &v); err != nil {
+		s.logger.Printf("Error unmarshalling response body: %s", string(body))
+		return v, fmt.Errorf("error unmarshalling response body: %w", err)
 	}
 
 	return v, nil
@@ -123,7 +130,6 @@ func (s *SensorsService) DeleteSensor(id int) error {
 
 	return nil
 }
-
 
 func (s *SensorsService) GetSensorDataByLocation(location string) (*models.TemperatureResponse, error) {
 	url := fmt.Sprintf("%s/api/v1/sensors/location/%s", s.BaseURL, location)

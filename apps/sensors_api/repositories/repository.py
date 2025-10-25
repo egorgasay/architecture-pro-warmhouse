@@ -6,7 +6,9 @@ from psycopg_pool import ConnectionPool
 from typing import Optional, List, Dict, Any
 from contextlib import contextmanager
 from exceptions import DatabaseError, NotFoundError
+import logging
 
+logger = logging.getLogger(__name__)
 
 class PostgresRepository:
     """Репозиторий с connection pooling и обработкой ошибок"""
@@ -171,6 +173,34 @@ class PostgresRepository:
             raise
         except Exception as e:
             raise DatabaseError(f"Failed to update sensor: {str(e)}")
+    
+    def get_sensor_by_location(self, location: str) -> Optional[Dict[str, Any]]:
+        """
+        Получить первый сенсор по локации
+        
+        Args:
+            location: Локация сенсора
+            
+        Returns:
+            Словарь с данными сенсора или None если не найден
+        """
+        try:
+            with self.get_cursor() as cursor:
+                cursor.execute(
+                    "SELECT id, name, type, location, last_updated, created_at FROM sensors WHERE location = %s ORDER BY id LIMIT 1",
+                    (location,)
+                )
+                logger.info(f"Location: {location}")
+                row = cursor.fetchone()
+                logger.error(f"Row: {row}")
+                if not row:
+                    raise NotFoundError(f"Sensor with location {location} not found")
+
+                return self._row_to_dict(row)
+        except (DatabaseError, NotFoundError):
+            raise
+        except Exception as e:
+            raise DatabaseError(f"Failed to fetch sensor by location: {str(e)}")
     
     def delete_sensor(self, sensor_id: int) -> bool:
         """

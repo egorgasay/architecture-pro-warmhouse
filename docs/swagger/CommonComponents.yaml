@@ -59,8 +59,9 @@ components:
       description: "Уникальный идентификатор датчика"
       
     sensor_value:
-      type: string
-      example: "22.5"
+      type: number
+      format: float
+      example: 22.5
       description: "Значение с датчика"
       
     sensor_status:
@@ -78,25 +79,35 @@ components:
       type: object
       description: "Элемент данных с датчика"
       properties:
+        id:
+          $ref: "#/components/schemas/sensor_numeric_id"
         value:
           $ref: "#/components/schemas/sensor_value"
+        unit:
+          $ref: "#/components/schemas/sensor_unit"
         status:
           $ref: "#/components/schemas/sensor_status"
+        created_at:
+          type: string
+          example: "1970-01-01 00:00:00"
+          description: "Дата и время создания записи"
       
-    sensor_update_request:
+    sensor_value_update_request:
       type: object
       required:
         - value
         - status
         - unit
-        - ts
+        - created_at
       properties:
         unit:
           $ref: "#/components/schemas/sensor_unit"
         status:
           $ref: "#/components/schemas/sensor_status"
-        timestamp:
+        created_at:
           $ref: "#/components/schemas/timestamp"
+        value:
+         $ref: "#/components/schemas/sensor_value"
       description: "Запрос на обновление данных датчика"
       
     sensor_name:
@@ -109,6 +120,29 @@ components:
       enum: [temperature]
       example: "temperature"
       description: "Тип датчика"
+    
+    sensor_data_by_location:
+      type: object
+      description: "Данные датчика по локации"
+      properties:
+        value:
+          $ref: "#/components/schemas/sensor_value"
+        unit:
+          $ref: "#/components/schemas/sensor_unit"
+        status:
+          $ref: "#/components/schemas/sensor_status"
+        timestamp:
+          $ref: "#/components/schemas/timestamp"
+        description:
+          type: string
+          example: "Comfortable temperature"
+          description: "Описание текущего состояния температуры"
+        sensor_id:
+          $ref: "#/components/schemas/sensor_id"
+        sensor_type:
+          $ref: "#/components/schemas/sensor_type"
+        location:
+          $ref: "#/components/schemas/sensor_location"
       
     sensor_location:
       type: string

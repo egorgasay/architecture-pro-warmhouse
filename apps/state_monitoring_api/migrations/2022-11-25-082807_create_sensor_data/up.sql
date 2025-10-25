@@ -1,9 +1,9 @@
 create table sensor_data
 (
     id        serial primary key,
-    value     varchar                 not null,
+    value     double precision        not null,
     unit      varchar                 not null,
     status    varchar                 not null,
-    ts        timestamp default now() not null,
+    created_at timestamp default now() not null,
     sensor_id integer                 not null
 );

@@ -9,7 +9,7 @@ use crate::domain::repositories::sensor_data::{SensorDataRepository};
 use crate::infrastructure::error::DieselRepositoryError;
 use crate::infrastructure::databases::postgresql::DBConn;
 use crate::infrastructure::models::sensor_data::{SensorDataDiesel};
-use chrono::{NaiveDateTime};
+use crate::infrastructure::utils::parse_datetime;
 use log::{info, error, debug, warn};
 
 pub struct SensorDataRepositoryImpl {
@@ -40,13 +40,16 @@ impl SensorDataRepository for SensorDataRepositoryImpl {
             }
         };
         
+        // Парсим дату с поддержкой различных форматов
+        let parsed_datetime = parse_datetime(&sensor_data.created_at);
+
         let diesel_data = SensorDataDiesel {
             id: None,
             sensor_id: sensor_id,
             value: sensor_data.value.clone(),
             unit: sensor_data.unit.clone(),
             status: sensor_data.status.clone(),
-            ts: NaiveDateTime::parse_from_str(&sensor_data.ts, "%Y-%m-%d %H:%M:%S").unwrap_or_default(),
+            created_at: parsed_datetime.naive_utc(),
         };
         
         let result: usize = run(move || diesel::insert_into(sensor_data_table).values(&diesel_data).execute(&mut conn))
@@ -63,7 +66,7 @@ impl SensorDataRepository for SensorDataRepositoryImpl {
     async fn get(&self, sensor_id: i32) -> RepositoryResult<SensorData> {
         debug!("SensorDataRepositoryImpl::get - retrieving data for sensor_id: {}", sensor_id);
         
-        use crate::infrastructure::schema::sensor_data::dsl::{sensor_data, sensor_id as sensor_id_col, ts};
+        use crate::infrastructure::schema::sensor_data::dsl::{sensor_data, sensor_id as sensor_id_col, created_at};
         
         let mut conn = match self.pool.get() {
             Ok(conn) => conn,
@@ -77,7 +80,7 @@ impl SensorDataRepository for SensorDataRepositoryImpl {
             use crate::infrastructure::schema::sensor_data::dsl::id;
             sensor_data
                 .filter(sensor_id_col.eq(sensor_id))
-                .order((ts.desc(), id.desc()))
+                .order((created_at.desc(), id.desc()))
                 .first::<SensorDataDiesel>(&mut conn)
         })
             .await

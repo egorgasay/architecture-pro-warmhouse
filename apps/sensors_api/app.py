@@ -26,6 +26,7 @@ def create_app():
     app.add_url_rule('/api/v1/sensors/<int:id>', 'get_sensor_by_id', controller.get_sensor_by_id, methods=['GET'])
     app.add_url_rule('/api/v1/sensors/<int:id>', 'update_sensor', controller.update_sensor, methods=['PUT'])
     app.add_url_rule('/api/v1/sensors/<int:id>', 'delete_sensor', controller.delete_sensor, methods=['DELETE'])
+    app.add_url_rule('/api/v1/sensors/location/<location>', 'get_temperature_by_location', controller.get_temperature_by_location, methods=['GET'])
     app.add_url_rule('/health', 'health_check', controller.health_check, methods=['GET'])
     
     return app

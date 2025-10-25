@@ -50,18 +50,17 @@ paths:
           $ref: "CommonComponents.yaml#/components/responses/forbidden_response"
         '500':
           $ref: "CommonComponents.yaml#/components/responses/internal_error_response"
-  
-  /api/v1/sensor/update:
+          
     post:
       summary: Обновляет значение данных датчика
       description: Метод обновляющий показания по инициативе датчика
-      operationId: SensorUpdate
+      operationId: SensorDataUpdate
       requestBody:
         description: Данные с датчика
         content:
           application/json:
             schema:
-              $ref: "CommonComponents.yaml#/components/schemas/sensor_update_request"
+              $ref: "CommonComponents.yaml#/components/schemas/sensor_value_update_request"
       security: 
         - device_key: []
       responses:

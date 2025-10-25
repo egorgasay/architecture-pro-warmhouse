@@ -18,10 +18,10 @@ pub struct CreateTodo {
 #[derive(Clone, Debug)]
 pub struct SensorData {
     pub id: i32,
-    pub value: String,
+    pub value: f64,
     pub unit: String,
     pub status: String,
-    pub ts: String,
+    pub created_at: String,
 }
 
 
@@ -32,7 +32,7 @@ impl From<SensorData> for SensorDataDTO {
             value: sensor_data.value,
             unit: sensor_data.unit,
             status: sensor_data.status,
-            ts: sensor_data.ts,
+            created_at: sensor_data.created_at,
         }
     }
 }

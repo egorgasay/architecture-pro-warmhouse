@@ -1,7 +1,5 @@
 package models
 
-import "time"
-
 // SensorType represents the type of sensor
 type SensorType string
 
@@ -42,14 +40,12 @@ type SensorUpdate struct {
 
 // SensorData represents the data of a sensor
 type SensorData struct {
-	ID        int    `json:"id"`
-	Location  string `json:"location"`
-	Unit      string `json:"unit"`
-	Status    string `json:"status"`
-	CreatedAt string `json:"created_at"`
-
-	// Для обратной совместимости
-	Value any `json:"value"`
+	ID        int     `json:"id"`
+	Location  string  `json:"location"`
+	Unit      string  `json:"unit"`
+	Status    string  `json:"status"`
+	CreatedAt string  `json:"created_at"`
+	Value     float64 `json:"value"`
 }
 
 type ErrorResponse struct {
@@ -63,12 +59,12 @@ func (e ErrorResponse) Error() string {
 
 // TemperatureResponse represents the response from the temperature API
 type TemperatureResponse struct {
-	Value       float64   `json:"value"`
-	Unit        string    `json:"unit"`
-	Timestamp   time.Time `json:"timestamp"`
-	Location    string    `json:"location"`
-	Status      string    `json:"status"`
-	SensorID    string    `json:"sensor_id"`
-	SensorType  string    `json:"sensor_type"`
-	Description string    `json:"description"`
+	Value       float64 `json:"value"`
+	Unit        string  `json:"unit"`
+	Timestamp   string  `json:"timestamp"`
+	Location    string  `json:"location"`
+	Status      string  `json:"status"`
+	SensorID    string  `json:"sensor_id"`
+	SensorType  string  `json:"sensor_type"`
+	Description string  `json:"description"`
 }

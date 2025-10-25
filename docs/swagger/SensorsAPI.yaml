@@ -167,4 +167,29 @@ paths:
           $ref: 'CommonComponents.yaml#/components/responses/unauthorized_response'
         '500':
           $ref: 'CommonComponents.yaml#/components/responses/internal_error_response'
-
+  
+  /api/v1/sensors/location/{location}:
+    get:
+      summary: Получить данные датчика по локации
+      description: Возвращает данные датчика по локации
+      operationId: GetSensorDataByLocation
+      parameters:
+        - name: location
+          in: path
+          required: true
+          description: Локация датчика
+          schema:
+            $ref: 'CommonComponents.yaml#/components/schemas/sensor_location'
+      responses:
+        '200':
+          description: Успешное получение данных датчика
+          content:
+            application/json:
+              schema:
+                $ref: 'CommonComponents.yaml#/components/schemas/sensor_data_by_location'
+        '400':
+          $ref: 'CommonComponents.yaml#/components/responses/bad_request_response'
+        '401':
+          $ref: 'CommonComponents.yaml#/components/responses/unauthorized_response'
+        '500':
+          $ref: 'CommonComponents.yaml#/components/responses/internal_error_response'

@@ -12,7 +12,6 @@ class TemperatureController:
     def get_temperature(self):
         try:
             location = request.args.get("location", None)
-            print(location)
             sensor_id = request.args.get("sensor_id", None)
             result = self.temperature_service.get_temperature(location, sensor_id)
             return jsonify(result), 200

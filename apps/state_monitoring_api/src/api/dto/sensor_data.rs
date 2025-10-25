@@ -4,19 +4,19 @@ use serde::{Serialize, Deserialize};
 #[derive(Debug, Serialize)]
 pub struct SensorDataDTO {
     pub id: i32,
-    pub value: String,
+    pub value: f64,
     pub unit: String,
     pub status: String,
-    pub ts: String,
+    pub created_at: String,
 }
 
 
 #[derive(Debug, Deserialize)]
 pub struct AddSensorDataDTO {
-    pub value: String,
+    pub value: f64,
     pub unit: String,
     pub status: String,
-    pub ts: String,
+    pub created_at: String,
 }
 
 impl Into<SensorData> for AddSensorDataDTO {
@@ -26,7 +26,7 @@ impl Into<SensorData> for AddSensorDataDTO {
             value: self.value,
             unit: self.unit,
             status: self.status,
-            ts: self.ts,
+            created_at: self.created_at,
         }
     }
 }

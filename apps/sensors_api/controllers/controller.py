@@ -62,7 +62,7 @@ def error_handler(f: Callable) -> Callable:
         try:
             return f(*args, **kwargs)
         except SensorAPIException as e:
-            logger.error(f"Sensor API Exception: {str(e)}")
+            logger.error(f"Sensors API Exception: {str(e)} code: {e.status_code} message: {e.message}")
             return jsonify({
                 "error": e.message,
                 "status_code": e.status_code
@@ -137,6 +137,14 @@ class SensorController:
         """Удалить сенсор"""
         self.sensor_service.delete_sensor(id)
         return jsonify({"message": "Sensor deleted successfully"}), 200
+    
+    @error_handler
+    def get_temperature_by_location(self, location: str) -> Tuple[Any, int]:
+        """Получить данные датчика по локации"""
+        sensor = self.sensor_service.get_sensor_by_location(location)
+        if sensor is None:
+            return jsonify({"error": "no sensor found", "status_code": 404}), 400
+        return jsonify(sensor), 200
     
     @error_handler
     def health_check(self) -> Tuple[Any, int]:
