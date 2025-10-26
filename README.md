@@ -105,6 +105,10 @@ Rel(sensorN, WarmHouseSystem, "Регистрация / Обновление д�
 
 **Диаграмма контейнеров (Containers)**
 
+![Container Diagram](./images/containerDiagram.png)
+
+<details>
+<summary>PlantUML Source Code</summary>
 ```plantuml
 @startuml
 
@@ -172,9 +176,14 @@ Rel(IngressEnvoy, sensorDevice, "Получение данных", "HTTPS")
 
 @enduml
 ```
+</details>
 
 **Диаграмма компонентов (Components)**
 
+![Components Diagram](./images/sensorsAPI.png)
+
+<details>
+<summary>PlantUML Source Code</summary>
 ```plantuml
 @startuml
 
@@ -224,6 +233,7 @@ Rel(EnvoySidecar, UsersAPI, "Аутентификация пользовател
 
 @enduml
 ```
+</details>
 
 
 ```plantuml
