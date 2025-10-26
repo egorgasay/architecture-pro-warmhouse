@@ -221,6 +221,7 @@ func (h *SensorHandler) UpdateSensor(c *gin.Context) {
 	if err := c.ShouldBindJSON(&sensorUpdate); err != nil {
 		c.JSON(http.StatusBadRequest, models.ErrorResponse{
 			Err: err.Error(),
+			StatusCode: http.StatusBadRequest,
 		})
 		return
 	}

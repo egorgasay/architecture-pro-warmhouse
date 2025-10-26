@@ -30,8 +30,7 @@ pub async fn add_sensor_data_handler(
 ) -> Result<HttpResponse, ApiError> {
     info!("POST /api/v1/sensor/data - sensor_id: {}, data: {:?}", params.sensor_id, sensor_data);
     
-    let domain_data: crate::domain::models::sensor_data::SensorData = sensor_data.into_inner().into();
-    match sensor_data_service.add(params.sensor_id, domain_data).await {
+    match sensor_data_service.add(params.sensor_id, sensor_data.into_inner().into()).await {
         Ok(_) => {
             info!("Successfully added sensor data for sensor_id: {}", params.sensor_id);
             Ok(HttpResponse::Ok().json(serde_json::json!({})))

@@ -124,6 +124,11 @@ components:
     sensor_data_by_location:
       type: object
       description: "Данные датчика по локации"
+      required:
+        - description
+        - sensor_id
+        - sensor_type
+        - location
       properties:
         value:
           $ref: "#/components/schemas/sensor_value"
@@ -191,6 +196,7 @@ components:
         - name
         - type
         - location
+        - unit
       properties:
         name:
           $ref: "#/components/schemas/sensor_name"
