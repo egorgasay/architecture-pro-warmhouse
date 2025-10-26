@@ -183,6 +183,8 @@ Rel(IngressEnvoy, sensorDevice, "Получение данных", "HTTPS")
 
 **Диаграмма компонентов (Components)**
 
+### API Управление устройствами
+
 ![Components Diagram](./images/sensorsAPI.png)
 
 **PlantUML Source:**
@@ -236,6 +238,8 @@ Rel(EnvoySidecar, UsersAPI, "Аутентификация пользовател
 
 @enduml
 ```
+
+### API Мониторинг состояний
 
 ![StateMonitoringAPI Diagram](./images/stateMonitoringAPI.png)
 
