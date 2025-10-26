@@ -65,13 +65,13 @@ class PostgresRepository:
     
     def create_sensor(self, data: dict) -> Dict[str, Any]:
         """
-        Создать новый сенсор
+        Создать новый датчик
         
         Args:
-            data: Словарь с данными сенсора
+            data: Словарь с данными датчика
             
         Returns:
-            Словарь с созданным сенсором
+            Словарь с созданным датчиком
         """
         try:
             with self.get_cursor() as cursor:
@@ -103,16 +103,16 @@ class PostgresRepository:
     
     def get_sensor_by_id(self, sensor_id: int) -> Dict[str, Any]:
         """
-        Получить сенсор по ID
+        Получить датчик по ID
         
         Args:
-            sensor_id: ID сенсора
+            sensor_id: ID датчика
             
         Returns:
-            Словарь с данными сенсора
+            Словарь с данными датчика
             
         Raises:
-            NotFoundError: Если сенсор не найден
+            NotFoundError: Если датчик не найден
         """
         try:
             with self.get_cursor() as cursor:
@@ -131,14 +131,14 @@ class PostgresRepository:
     
     def update_sensor(self, sensor_id: int, data: dict) -> Dict[str, Any]:
         """
-        Обновить сенсор
+        Обновить датчик
         
         Args:
-            sensor_id: ID сенсора
+            sensor_id: ID датчика
             data: Словарь с обновленными данными
             
         Returns:
-            Словарь с обновленным сенсором
+            Словарь с обновленным датчиком
         """
         # Формируем динамический запрос только с переданными полями
         update_fields = []
@@ -176,13 +176,13 @@ class PostgresRepository:
     
     def get_sensor_by_location(self, location: str) -> Optional[Dict[str, Any]]:
         """
-        Получить первый сенсор по локации
+        Получить первый датчик по локации
         
         Args:
-            location: Локация сенсора
+            location: Локация датчика
             
         Returns:
-            Словарь с данными сенсора или None если не найден
+            Словарь с данными датчика или None если не найден
         """
         try:
             with self.get_cursor() as cursor:
@@ -204,10 +204,10 @@ class PostgresRepository:
     
     def delete_sensor(self, sensor_id: int) -> bool:
         """
-        Удалить сенсор
+        Удалить датчик
         
         Args:
-            sensor_id: ID сенсора
+            sensor_id: ID датчика
             
         Returns:
             True если удален успешно

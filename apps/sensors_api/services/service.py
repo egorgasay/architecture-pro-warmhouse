@@ -54,13 +54,13 @@ class SensorService:
     
     def create_sensor(self, data: dict) -> Dict[str, Any]:
         """
-        Создать новый сенсор
+        Создать новый датчик
         
         Args:
             data: Сырые данные от клиента
             
         Returns:
-            Словарь с созданным сенсором
+            Словарь с созданным датчиком
             
         Raises:
             ValidationError: При невалидных данных
@@ -89,7 +89,7 @@ class SensorService:
         return sensor.model_dump()
     
     def get_sensor_by_id(self, sensor_id: int) -> Dict[str, Any]:
-        """Получить сенсор по ID"""
+        """Получить датчик по ID"""
         if not isinstance(sensor_id, int) or sensor_id <= 0:
             raise ValidationError("Invalid sensor ID")
         
@@ -106,7 +106,7 @@ class SensorService:
     
     def update_sensor(self, sensor_id: int, data: dict) -> Dict[str, Any]:
         """
-        Обновить сенсор
+        Обновить датчик
         
         Args:
             sensor_id: ID сенсора
@@ -143,13 +143,13 @@ class SensorService:
     
     def get_sensor_by_location(self, location: str) -> Optional[Dict[str, Any]]:
         """
-        Получить сенсор по локации с данными из state_monitoring_api
+        Получить датчик по локации с данными из state_monitoring_api
         
         Args:
-            location: Локация сенсора
+            location: Локация датчика
             
         Returns:
-            Словарь с данными сенсора или None если не найден
+            Словарь с данными датчика или None если не найден
         """
         if not location or not isinstance(location, str):
             raise ValidationError("Invalid location")
@@ -193,7 +193,7 @@ class SensorService:
             return None
     
     def delete_sensor(self, sensor_id: int) -> bool:
-        """Удалить сенсор"""
+        """Удалить датчик"""
         if not isinstance(sensor_id, int) or sensor_id <= 0:
             raise ValidationError("Invalid sensor ID")
         

@@ -62,7 +62,7 @@ def error_handler(f: Callable) -> Callable:
         try:
             return f(*args, **kwargs)
         except SensorAPIException as e:
-            logger.error(f"Sensors API Exception: {str(e)} code: {e.status_code} message: {e.message}")
+            logger.error(f"Sensors API Exception: code: {e.status_code} message: {e.message}")
             return jsonify({
                 "error": e.message,
                 "status_code": e.status_code
@@ -100,7 +100,7 @@ class SensorController:
     @validate_content_type
     @validate_payload_size
     def create_sensor(self) -> Tuple[Any, int]:
-        """Создать новый сенсор"""
+        """Создать новый датй"""
         if not request.is_json:
             raise ValidationError("Request body must be JSON")
         
@@ -113,7 +113,7 @@ class SensorController:
     
     @error_handler
     def get_sensor_by_id(self, id: int) -> Tuple[Any, int]:
-        """Получить сенсор по ID"""
+        """Получить датчик по ID"""
         sensor = self.sensor_service.get_sensor_by_id(id)
         return jsonify(sensor), 200
     
@@ -121,7 +121,7 @@ class SensorController:
     @validate_content_type
     @validate_payload_size
     def update_sensor(self, id: int) -> Tuple[Any, int]:
-        """Обновить сенсор"""
+        """Обновить датчик"""
         if not request.is_json:
             raise ValidationError("Request body must be JSON")
         
@@ -134,7 +134,7 @@ class SensorController:
     
     @error_handler
     def delete_sensor(self, id: int) -> Tuple[Any, int]:
-        """Удалить сенсор"""
+        """Удалить датчик"""
         self.sensor_service.delete_sensor(id)
         return jsonify({"message": "Sensor deleted successfully"}), 200
     
