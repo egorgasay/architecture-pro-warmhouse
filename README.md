@@ -10,6 +10,13 @@
 
 </aside
 
+
+# Комментарий для ревьюера
+
+Реализовывал все по заданию, но свои микросервис UsersAPI (он есть в моих схемах) реализовывать не стал, для упрощения и так как в задании не просится.
+Также в моей схеме есть использование Очереди сообщений для взаимодействия между сервисами, но для упрощения я везде использовал Postgres.
+
+
 ### 1. Описание функциональности монолитного приложения
 
 **Управление отоплением:**
@@ -142,7 +149,7 @@ Rel_L(NginxProxy, S3, "Отдает статику", "HTTP")
 Rel(IngressEnvoy, SensorsAPI, "Запросы от админа/пользователя", "HTTP")
 Rel(IngressEnvoy, UsersAPI, "Запросы от админа/пользователя", "HTTP")
 Rel(IngressEnvoy, StateMonitoringAPI, "Запросы от устройств и пользователей", "HTTP")
-Rel(SensorsAPI, IngressEnvoy, "Получение статуса/Realtime данных из устройства", "HTTP")
+Rel_L(SensorsAPI, IngressEnvoy, "Получение статуса/Realtime данных из устройства", "HTTP")
 
 ' S2S через sidecar Envoy
 Rel(SensorsAPI, StateMonitoringAPI, "Получает актуальные показания", "HTTP")
@@ -294,9 +301,11 @@ top to bottom direction
 !includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
 
 class MonitoringData {
+  +Int id
   +Float value
   +String status
   +Date createdAt
+  +String unit
   +void gather()
 }
 
