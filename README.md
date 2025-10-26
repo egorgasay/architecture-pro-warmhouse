@@ -73,6 +73,10 @@
 
 Добавьте сюда диаграмму контекста в модели C4.
 
+![Context Diagram](./images/contextDiagram.png)
+
+**PlantUML Source:**
+
 ```plantuml
 @startuml
 
@@ -107,8 +111,8 @@ Rel(sensorN, WarmHouseSystem, "Регистрация / Обновление д�
 
 ![Container Diagram](./images/containerDiagram.png)
 
-<details>
-<summary>PlantUML Source Code</summary>
+**PlantUML Source:**
+
 ```plantuml
 @startuml
 
@@ -176,14 +180,13 @@ Rel(IngressEnvoy, sensorDevice, "Получение данных", "HTTPS")
 
 @enduml
 ```
-</details>
 
 **Диаграмма компонентов (Components)**
 
 ![Components Diagram](./images/sensorsAPI.png)
 
-<details>
-<summary>PlantUML Source Code</summary>
+**PlantUML Source:**
+
 ```plantuml
 @startuml
 
@@ -233,13 +236,15 @@ Rel(EnvoySidecar, UsersAPI, "Аутентификация пользовател
 
 @enduml
 ```
-</details>
 
+![StateMonitoringAPI Diagram](./images/stateMonitoringAPI.png)
+
+**PlantUML Source:**
 
 ```plantuml
 @startuml
 
-title Тёплый дом API Мониторинг состояний Container Diagram
+title Тёплы дом API Мониторинг состояний Container Diagram
 
 top to bottom direction
 
@@ -302,6 +307,10 @@ Rel(EnvoySidecar, MessageBroker, "Считывает показания", "AMQP"
 
 **Диаграмма кода (Code)**
 
+![Code Diagram](./images/codeDiagram.png)
+
+**PlantUML Source:**
+
 ```plantuml
 @startuml
 title FitLife Membership Management Code Diagram
@@ -353,6 +362,10 @@ Sensor "1" -- "0..*" MonitoringData : includes
 # Задание 3. Разработка ER-диаграммы
 
 Добавьте сюда ER-диаграмму. Она должна отражать ключевые сущности системы, их атрибуты и тип связей между ними.
+
+![ER Diagram](./images/erDiagram.png)
+
+**PlantUML Source:**
 
 ```plantuml
 @startuml
