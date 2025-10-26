@@ -161,7 +161,7 @@ class SensorService:
         data = self.get_data_from_statemon(sensor['id'])
         
         try:
-            description = f"cold temperature in the room"
+            description = f"default description"
             value = data.get('value', None)
             if value is None:
                 description = f"description for value is None"

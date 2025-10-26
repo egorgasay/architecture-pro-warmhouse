@@ -190,10 +190,8 @@ class PostgresRepository:
                     "SELECT id, name, type, location, last_updated, created_at FROM sensors WHERE location = %s ORDER BY id LIMIT 1",
                     (location,)
                 )
-                logger.info(f"Location: {location}")
                 row = cursor.fetchone()
-                logger.error(f"Row: {row}")
-                if not row:
+                if not row: # на всякий случай)
                     raise NotFoundError(f"Sensor with location {location} not found")
 
                 return self._row_to_dict(row)
