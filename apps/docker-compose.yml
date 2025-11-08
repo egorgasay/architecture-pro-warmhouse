@@ -1,27 +1,129 @@
 version: '3.8'
 
 services:
-  postgres:
+  smarthome_database:
     image: postgres:16-alpine
-    container_name: smarthome-postgres
-  ## тут нужно добавить настройки
+    container_name: smarthome_database
+    environment:
+      POSTGRES_USER: ${SMARTHOME_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${SMARTHOME_POSTGRES_PASSWORD}
+      POSTGRES_DB: ${SMARTHOME_POSTGRES_DB}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    volumes:
+    - ./smart_home/init.sql:/docker-entrypoint-initdb.d/init.sql
+    - smarthome_postgres_data:/var/lib/postgresql/data
+    ports:
+      - "6000:5432"
+    networks:
+      - smarthome-network
 
-  temperature-api:
-  ## тут нужно добавить приложение
+  statemon_database:
+    image: postgres:16-alpine
+    container_name: statemon_database
+    environment:
+      POSTGRES_USER: ${STATEMON_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${STATEMON_POSTGRES_PASSWORD}
+      POSTGRES_DB: ${STATEMON_POSTGRES_DB}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    volumes:
+    - ./state_monitoring_api/init.sql:/docker-entrypoint-initdb.d/init.sql
+    - statemon_postgres_data:/var/lib/postgresql/data
+    ports:
+      - "6001:5432"
+    networks:
+      - smarthome-network
 
-  app:
+  sensors_database:
+    image: postgres:16-alpine
+    container_name: sensors_database
+    environment:
+      POSTGRES_USER: ${SENSORS_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${SENSORS_POSTGRES_PASSWORD}
+      POSTGRES_DB: ${SENSORS_POSTGRES_DB}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    volumes:
+    - sensors_postgres_data:/var/lib/postgresql/data
+    - ./sensors_api/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "6002:5432"
+    networks:
+      - smarthome-network
+  
+  sensors_api:
+    build:
+      context: ./sensors_api
+      dockerfile: Dockerfile
+    container_name: sensors_api
+    environment:
+      - DATABASE_URL=postgres://${SENSORS_POSTGRES_USER}:${SENSORS_POSTGRES_PASSWORD}@sensors_database:5432/${SENSORS_POSTGRES_DB}
+      - STATE_MONITORING_API_URL=http://statemon:7676
+    ports:
+      - "8081:8081"
+    restart: unless-stopped
+    networks:
+      - smarthome-network
+    depends_on:
+      sensors_database:
+        condition: service_healthy
+      
+  statemon:
+    build:
+      context: ./state_monitoring_api
+      dockerfile: Dockerfile
+    container_name: statemon
+    environment:
+      - DATABASE_URL=postgres://${STATEMON_POSTGRES_USER}:${STATEMON_POSTGRES_PASSWORD}@statemon_database:5432/${STATEMON_POSTGRES_DB}
+    ports:
+      - "7676:7676"
+    restart: unless-stopped
+    networks:
+      - smarthome-network
+    depends_on:
+      statemon_database:
+        condition: service_healthy
+
+  temperature_api:
+    build:
+      context: ./temperature_api
+      dockerfile: Dockerfile
+    container_name: temperature_api
+    environment:
+      - MIN_TEMP=-20
+      - MAX_TEMP=40
+    ports:
+      - "5000:5000"
+    restart: unless-stopped
+    networks:
+      - smarthome-network
+
+  smart_home:
     build:
       context: ./smart_home
       dockerfile: Dockerfile
     container_name: smarthome-app
     depends_on:
-      postgres:
+      smarthome_database:
         condition: service_healthy
-      temperature-api:
+      temperature_api:
         condition: service_started
     environment:
-      - DATABASE_URL=postgres://postgres:postgres@postgres:5432/smarthome
-      - TEMPERATURE_API_URL=http://temperature-api:8081
+      - DATABASE_URL=postgres://${SMARTHOME_POSTGRES_USER}:${SMARTHOME_POSTGRES_PASSWORD}@smarthome_database:5432/${SMARTHOME_POSTGRES_DB}
+      - TEMPERATURE_API_URL=http://temperature_api:5000
     ports:
       - "8080:8080"
     restart: unless-stopped
@@ -29,7 +131,9 @@ services:
       - smarthome-network
 
 volumes:
-  postgres_data:
+  smarthome_postgres_data:
+  statemon_postgres_data:
+  sensors_postgres_data:
 
 networks:
   smarthome-network:

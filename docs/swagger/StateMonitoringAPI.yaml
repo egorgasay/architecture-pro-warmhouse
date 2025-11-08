@@ -1,0 +1,76 @@
+openapi: 3.0.0
+servers:
+  - description: State Monitoring API Server
+    url: 'https://api.example.com/state-monitoring/v1'
+info:
+  version: 1.0.0
+  title: State Monitoring API
+  description: API для мониторинга состояния системы
+security:
+  - device_key:
+      - write
+
+paths:
+  /api/v1/sensor/data:
+    get:
+      summary: Получает данные датчика
+      description: Метод получающий данные датчика по ID
+      operationId: SensorData
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            $ref: "CommonComponents.yaml#/components/schemas/sensor_id"
+          description: "Идентификатор датчика"
+        - name: location
+          in: query
+          schema:
+            $ref: "CommonComponents.yaml#/components/schemas/sensor_location"
+          description: "Локация датчика"
+      security: 
+        - device_key: []
+      responses:
+        '200':
+          description: Данные датчика получены успешно
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "CommonComponents.yaml#/components/schemas/sensor_data_item"
+        '400':
+          $ref: "CommonComponents.yaml#/components/responses/bad_request_response"
+        '401':
+          $ref: "CommonComponents.yaml#/components/responses/unauthorized_response"
+        '403':
+          $ref: "CommonComponents.yaml#/components/responses/forbidden_response"
+        '500':
+          $ref: "CommonComponents.yaml#/components/responses/internal_error_response"
+          
+    post:
+      summary: Обновляет значение данных датчика
+      description: Метод обновляющий показания по инициативе датчика
+      operationId: SensorDataUpdate
+      requestBody:
+        description: Данные с датчика
+        content:
+          application/json:
+            schema:
+              $ref: "CommonComponents.yaml#/components/schemas/sensor_value_update_request"
+      security: 
+        - device_key: []
+      responses:
+        '204':
+          description: Данные успешно обновлены
+        '400':
+          $ref: "CommonComponents.yaml#/components/responses/bad_request_response"
+        '401':
+          $ref: "CommonComponents.yaml#/components/responses/unauthorized_response"
+        '403':
+          $ref: "CommonComponents.yaml#/components/responses/forbidden_response"
+        '500':
+          $ref: "CommonComponents.yaml#/components/responses/internal_error_response"

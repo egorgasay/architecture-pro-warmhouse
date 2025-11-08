@@ -1,0 +1,68 @@
+openapi: 3.0.0
+servers:
+  - description: Sensor API Server
+    url: 'https://api.example.com/sensors/v1'
+info:
+  version: 1.0.0
+  title: Sensor API
+  description: API для работы с датчиками температуры
+security:
+  - device_key:
+      - read
+
+paths:
+  /temperature:
+    get:
+      summary: Получает данные 
+      description: Метод получающий температуру
+      operationId: GetTemperatureByLocation
+      parameters:
+        - name: location
+          in: query
+          schema:
+            type: string
+            properties:
+              location:
+                type: string
+                example: "Гостиная"
+            description: "Локация"
+      security: 
+        - device_key: []
+      responses:
+        '200':
+          description: Данные датчика получены успешно
+          content:
+            application/json:
+              schema:
+                $ref: "CommonComponents.yaml#/components/schemas/sensor_data_item"
+        '400':
+          $ref: "CommonComponents.yaml#/components/responses/bad_request_response"
+        '401':
+          $ref: "CommonComponents.yaml#/components/responses/unauthorized_response"
+        '403':
+          $ref: "CommonComponents.yaml#/components/responses/forbidden_response"
+        '500':
+          $ref: "CommonComponents.yaml#/components/responses/internal_error_response"
+
+  /temperature/{sensor_id}:
+    get:
+      summary: Получает данные 
+      description: Метод получающий температуру по идентификатору датчика
+      operationId: GetTemperatureByID
+      security: 
+        - device_key: []
+      responses:
+        '200':
+          description: Данные датчика получены успешно
+          content:
+            application/json:
+              schema:
+                $ref: "CommonComponents.yaml#/components/schemas/sensor_data_item"
+        '400':
+          $ref: "CommonComponents.yaml#/components/responses/bad_request_response"
+        '401':
+          $ref: "CommonComponents.yaml#/components/responses/unauthorized_response"
+        '403':
+          $ref: "CommonComponents.yaml#/components/responses/forbidden_response"
+        '500':
+          $ref: "CommonComponents.yaml#/components/responses/internal_error_response"

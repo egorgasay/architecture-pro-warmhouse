@@ -1,0 +1,354 @@
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: Common Components
+  description: Общие компоненты для всех микросервисов
+
+paths: {}
+
+components:
+  schemas:
+    username:
+      type: string
+      example: "user2"
+      description: "Имя пользователя"
+      
+    password:
+      type: string
+      example: "qwerty"
+      description: "Пароль пользователя"
+      
+    access_token:
+      type: string
+      example: "hwbefjvwbdf24wfyuihbk2"
+      description: "JWT токен доступа"
+      
+    refresh_token:
+      type: string
+      example: "33nvdcaejfwhebf"
+      description: "JWT токен обновления"
+      
+    email:
+      type: string
+      example: "qwerty@mail.ru"
+      description: "Email адрес пользователя"
+      
+    expires_in:
+      type: integer
+      example: 600
+      description: "Время жизни токена в секундах"
+      
+    error_message:
+      type: string
+      example: "bad request reason"
+      description: "Сообщение об ошибке"
+      
+    pagination_limit:
+      type: integer
+      example: 100
+      description: "Количество записей на странице"
+      
+    pagination_offset:
+      type: integer
+      example: 0
+      description: "Смещение для пагинации"
+      
+    sensor_id:
+      type: string
+      example: "sensor-id-1"
+      description: "Уникальный идентификатор датчика"
+      
+    sensor_value:
+      type: number
+      format: float
+      example: 22.5
+      description: "Значение с датчика"
+      
+    sensor_status:
+      type: string
+      example: "active"
+      description: "Статус датчика"
+      
+    timestamp:
+      type: string
+      format: date-time
+      example: "2025-01-01T00:00:00.123Z"
+      description: "Временная метка в формате ISO 8601"
+    
+    sensor_data_item:
+      type: object
+      description: "Элемент данных с датчика"
+      properties:
+        id:
+          $ref: "#/components/schemas/sensor_numeric_id"
+        value:
+          $ref: "#/components/schemas/sensor_value"
+        unit:
+          $ref: "#/components/schemas/sensor_unit"
+        status:
+          $ref: "#/components/schemas/sensor_status"
+        created_at:
+          type: string
+          example: "1970-01-01 00:00:00"
+          description: "Дата и время создания записи"
+      
+    sensor_value_update_request:
+      type: object
+      required:
+        - value
+        - status
+        - unit
+        - created_at
+      properties:
+        unit:
+          $ref: "#/components/schemas/sensor_unit"
+        status:
+          $ref: "#/components/schemas/sensor_status"
+        created_at:
+          $ref: "#/components/schemas/timestamp"
+        value:
+         $ref: "#/components/schemas/sensor_value"
+      description: "Запрос на обновление данных датчика"
+      
+    sensor_name:
+      type: string
+      example: "Living Room Temperature Sensor"
+      description: "Название датчика"
+      
+    sensor_type:
+      type: string
+      enum: [temperature]
+      example: "temperature"
+      description: "Тип датчика"
+    
+    sensor_data_by_location:
+      type: object
+      description: "Данные датчика по локации"
+      required:
+        - description
+        - sensor_id
+        - sensor_type
+        - location
+      properties:
+        value:
+          $ref: "#/components/schemas/sensor_value"
+        unit:
+          $ref: "#/components/schemas/sensor_unit"
+        status:
+          $ref: "#/components/schemas/sensor_status"
+        timestamp:
+          $ref: "#/components/schemas/timestamp"
+        description:
+          type: string
+          example: "Comfortable temperature"
+          description: "Описание текущего состояния температуры"
+        sensor_id:
+          $ref: "#/components/schemas/sensor_id"
+        sensor_type:
+          $ref: "#/components/schemas/sensor_type"
+        location:
+          $ref: "#/components/schemas/sensor_location"
+      
+    sensor_location:
+      type: string
+      example: "living_room"
+      description: "Локация датчика"
+      
+    sensor_unit:
+      type: string
+      example: "°C"
+      description: "Единица измерения"
+      
+    sensor_numeric_id:
+      type: integer
+      example: 1
+      description: "Числовой идентификатор датчика"
+      
+    sensor:
+      type: object
+      description: "Полная информация о датчике"
+      properties:
+        id:
+          $ref: "#/components/schemas/sensor_numeric_id"
+        name:
+          $ref: "#/components/schemas/sensor_name"
+        type:
+          $ref: "#/components/schemas/sensor_type"
+        location:
+          $ref: "#/components/schemas/sensor_location"
+        value:
+          type: number
+          format: float
+          example: 22.5
+          description: "Текущее значение датчика"
+        unit:
+          $ref: "#/components/schemas/sensor_unit"
+        status:
+          $ref: "#/components/schemas/sensor_status"
+        last_updated:
+          $ref: "#/components/schemas/timestamp"
+        created_at:
+          $ref: "#/components/schemas/timestamp"
+          
+    sensor_create:
+      type: object
+      required:
+        - name
+        - type
+        - location
+        - unit
+      properties:
+        name:
+          $ref: "#/components/schemas/sensor_name"
+        type:
+          $ref: "#/components/schemas/sensor_type"
+        location:
+          $ref: "#/components/schemas/sensor_location"
+        unit:
+          $ref: "#/components/schemas/sensor_unit"
+      description: "Данные для создания нового датчика"
+      
+    sensor_update:
+      type: object
+      properties:
+        name:
+          $ref: "#/components/schemas/sensor_name"
+        type:
+          $ref: "#/components/schemas/sensor_type"
+        location:
+          $ref: "#/components/schemas/sensor_location"
+        value:
+          type: number
+          format: float
+          example: 23.0
+          description: "Новое значение датчика"
+        unit:
+          $ref: "#/components/schemas/sensor_unit"
+        status:
+          $ref: "#/components/schemas/sensor_status"
+      description: "Данные для обновления датчика"
+      
+    sensor_value_update:
+      type: object
+      required:
+        - value
+        - status
+      properties:
+        value:
+          type: number
+          format: float
+          example: 24.5
+          description: "Новое значение датчика"
+        status:
+          $ref: "#/components/schemas/sensor_status"
+      description: "Данные для обновления значения датчика"
+      
+    temperature_data:
+      type: object
+      properties:
+        location:
+          $ref: "#/components/schemas/sensor_location"
+        value:
+          type: number
+          format: float
+          example: 22.5
+          description: "Значение температуры"
+        unit:
+          $ref: "#/components/schemas/sensor_unit"
+        status:
+          $ref: "#/components/schemas/sensor_status"
+        timestamp:
+          $ref: "#/components/schemas/timestamp"
+        description:
+          type: string
+          example: "Comfortable temperature"
+          description: "Описание текущего состояния температуры"
+      description: "Данные температуры для локации"
+
+  securitySchemes:
+    o2:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: "JWT Bearer токен для аутентификации"
+    
+    device_token:
+      type: apiKey
+      name: X-Device-Token
+      in: header
+      description: "API ключ для аутентификации устройств"
+      
+    device_key:
+      type: apiKey
+      name: X-Device-Key
+      in: header
+      description: "API ключ для аутентификации датчиков"
+
+  responses:
+    ok_response:
+      description: Успешный запрос
+      content:
+        application/json:
+          schema:
+            type: object
+            properties: {}
+            
+    bad_request_response:
+      description: Ошибка в запросе
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                $ref: "#/components/schemas/error_message"
+                
+    internal_error_response:
+      description: Ошибка на сервере
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                $ref: "#/components/schemas/error_message"
+                
+    unauthorized_response:
+      description: Неавторизованный доступ
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: "unauthorized access"
+                
+    forbidden_response:
+      description: Доступ запрещен
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: "access forbidden"
+
+  parameters:
+    limit_param:
+      name: limit
+      in: query
+      required: false
+      schema:
+        $ref: "#/components/schemas/pagination_limit"
+      description: "Количество записей на странице"
+      
+    offset_param:
+      name: offset
+      in: query
+      required: false
+      schema:
+        $ref: "#/components/schemas/pagination_offset"
+      description: "Смещение для пагинации"
+

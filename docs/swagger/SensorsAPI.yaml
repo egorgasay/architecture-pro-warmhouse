@@ -1,0 +1,195 @@
+openapi: 3.0.0
+servers:
+  - description: Sensors API Server
+    url: 'http://localhost:8080'
+info:
+  version: 1.0.0
+  title: Sensors API
+  description: API для управления датчиками умного дома
+  
+security:
+  - o2:
+      - read
+      - write
+
+paths:
+  /api/v1/sensors:
+    get:
+      summary: Получить список всех датчиков
+      description: Возвращает список всех датчиков системы. 
+      operationId: GetSensors
+      responses:
+        '200':
+          description: Успешное получение списка датчиков
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: 'CommonComponents.yaml#/components/schemas/sensor'
+        '401':
+          $ref: 'CommonComponents.yaml#/components/responses/unauthorized_response'
+        '500':
+          $ref: 'CommonComponents.yaml#/components/responses/internal_error_response'
+          
+    post:
+      summary: Создать новый датчик
+      description: Создает новый датчик в системе
+      operationId: CreateSensor
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: 'CommonComponents.yaml#/components/schemas/sensor_create'
+      responses:
+        '201':
+          description: Датчик успешно создан
+          content:
+            application/json:
+              schema:
+                $ref: 'CommonComponents.yaml#/components/schemas/sensor'
+        '400':
+          $ref: 'CommonComponents.yaml#/components/responses/bad_request_response'
+        '401':
+          $ref: 'CommonComponents.yaml#/components/responses/unauthorized_response'
+        '500':
+          $ref: 'CommonComponents.yaml#/components/responses/internal_error_response'
+          
+  /api/v1/sensors/{id}:
+    get:
+      summary: Получить датчик по ID
+      description: Возвращает информацию о датчике по его идентификатору. Для температурных датчиков получает актуальные данные из внешнего API.
+      operationId: GetSensorById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID датчика
+          schema:
+            $ref: 'CommonComponents.yaml#/components/schemas/sensor_numeric_id'
+      responses:
+        '200':
+          description: Успешное получение информации о датчике
+          content:
+            application/json:
+              schema:
+                $ref: 'CommonComponents.yaml#/components/schemas/sensor'
+        '400':
+          description: Неверный ID датчика
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Invalid sensor ID"
+        '404':
+          description: Датчик не найден
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Sensor not found"
+        '401':
+          $ref: 'CommonComponents.yaml#/components/responses/unauthorized_response'
+        '500':
+          $ref: 'CommonComponents.yaml#/components/responses/internal_error_response'
+          
+    put:
+      summary: Обновить датчик
+      description: Полное обновление данных датчика
+      operationId: UpdateSensor
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID датчика
+          schema:
+            $ref: 'CommonComponents.yaml#/components/schemas/sensor_numeric_id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: 'CommonComponents.yaml#/components/schemas/sensor_update'
+      responses:
+        '200':
+          description: Датчик успешно обновлен
+          content:
+            application/json:
+              schema:
+                $ref: 'CommonComponents.yaml#/components/schemas/sensor'
+        '400':
+          $ref: 'CommonComponents.yaml#/components/responses/bad_request_response'
+        '401':
+          $ref: 'CommonComponents.yaml#/components/responses/unauthorized_response'
+        '500':
+          $ref: 'CommonComponents.yaml#/components/responses/internal_error_response'
+          
+    delete:
+      summary: Удалить датчик
+      description: Удаляет датчик из системы
+      operationId: DeleteSensor
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID датчика
+          schema:
+            $ref: 'CommonComponents.yaml#/components/schemas/sensor_numeric_id'
+      responses:
+        '200':
+          description: Датчик успешно удален
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Sensor deleted successfully"
+        '400':
+          description: Неверный ID датчика
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Invalid sensor ID"
+        '401':
+          $ref: 'CommonComponents.yaml#/components/responses/unauthorized_response'
+        '500':
+          $ref: 'CommonComponents.yaml#/components/responses/internal_error_response'
+  
+  /api/v1/sensors/location/{location}:
+    get:
+      summary: Получить данные датчика по локации
+      description: Возвращает данные датчика по локации
+      operationId: GetSensorDataByLocation
+      parameters:
+        - name: location
+          in: path
+          required: true
+          description: Локация датчика
+          schema:
+            $ref: 'CommonComponents.yaml#/components/schemas/sensor_location'
+      responses:
+        '200':
+          description: Успешное получение данных датчика
+          content:
+            application/json:
+              schema:
+                $ref: 'CommonComponents.yaml#/components/schemas/sensor_data_by_location'
+        '400':
+          $ref: 'CommonComponents.yaml#/components/responses/bad_request_response'
+        '401':
+          $ref: 'CommonComponents.yaml#/components/responses/unauthorized_response'
+        '500':
+          $ref: 'CommonComponents.yaml#/components/responses/internal_error_response'

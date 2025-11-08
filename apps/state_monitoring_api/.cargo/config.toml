@@ -1,0 +1,7 @@
+[target.aarch64-apple-darwin]
+rustflags = ["-L", "/opt/homebrew/opt/libpq/lib", "-l", "pq"]
+
+[env]
+LDFLAGS = "-L/opt/homebrew/opt/libpq/lib"
+CPPFLAGS = "-I/opt/homebrew/opt/libpq/include"
+
